@@ -40,6 +40,7 @@ library(knitr)
 library(tidyverse)
 library(kableExtra)
 # Opciones por defecto
+options(htmltools.dir.version = FALSE)
 opts_chunk$set(fig.width = 7.252, fig.height = 4, dpi = 600,
                fig.retina=4, warning = FALSE, message = FALSE, cache=FALSE)
 # Xaringan settings
@@ -346,18 +347,11 @@ ggpairs(ambiente,
 ]
 
 .panel[.panel-name[Gráfico ggpairs()]
-```{r, echo=FALSE, out.width='70%', fig.align='center'}
-ambiente <- openxlsx::read.xlsx("bases/variables ambientales.xlsx")
-library(GGally)
-ggpairs(ambiente,
-        upper= list(continuous= wrap("cor", method="spearman",
-                                     color="#5f00db", size=3)),
-        lower= list(continuous= wrap("points", 
-                                       color="#5f00db", alpha=0.5)),
-        diag= list(continuous= wrap("densityDiag", 
-                                      fill="#5f00db", alpha=0.5)))+
-  theme_test()
+
+```{r, fig.align='center', out.width="80%", echo=FALSE}
+include_graphics("figs/ggpairs.png")
 ```
+
 ]
 ]
 
