@@ -1,0 +1,753 @@
+---
+title: "Análisis Multivariados: C1 - Métodos sin restricciones (interdependientes)"
+author: "Blgo. Irwing S. Saldaña"
+output: html
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+# Cargar librerías de trabajo
+library(tidyverse)
+library(ade4)
+library(factoextra)
+library(FactoMineR)
+library(vegan)
+library(ape)
+library(ca)
+library(goeveg)
+
+# Cargar base de datos aravo
+data("aravo")
+help(aravo)
+
+# Extrar las matrices de trabajo
+bio <- aravo$spe %>% as_tibble()
+amb <- aravo$env %>% as_tibble() %>% select(-ZoogD, -PhysD, -Form)
+
+```
+
+# **1. Métodos de Transformaciones**
+
+```{r}
+# Funciones básicas de transformación
+log(bio)
+bio_log <- log1p(bio)
+bio_scale <- scale(bio) %>% as.data.frame()
+amb_esc <- scale(amb) %>% as.data.frame()
+
+mean(amb_esc$Aspect)
+var(amb_esc$Aspect)
+
+# Funciones de vegan
+help(decostand)
+bio_hell <- decostand(bio, method="hellinger")
+bio_chord <- decostand(bio, method="normalize") #chord
+bio_chi <- decostand(bio, method="chi.square") #chord
+bio_pa <- decostand(bio, method="pa") #presencia-ausencia
+bio_perf <- decostand(bio, method="total", MARGIN=2) #perfiles de especies
+colSums(bio_perf)
+```
+
+# **2. Métodos de Distancias**
+
+## **2.1. Funciones para generar matrices de distancias**
+
+```{r}
+# El Método puede ser uno de los siguiente: "manhattan", "euclidean", "canberra", "clark", "bray", "kulczynski", "jaccard", "gower", "altGower", "morisita", "horn", "mountford", "raup", "binomial", "chao",  "cao", "mahalanobis", "chisq", "chord"
+
+vegdist(DF, method="Método")
+
+# También se pueden calcular con la función base dist()
+# El Método puede ser uno de los siguiente:"euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"
+
+dist(DF, method="Método")
+
+# DF_pa data.frame de presencia-ausencia
+# El Método puede ser uno de los siguiente:
+# 1 = Jaccard index (1901)
+# 2 = Simple matching coefficient of Sokal & Michener (1958)
+# 3 = Sokal & Sneath(1963)
+# 4 = Rogers & Tanimoto (1960)
+# 5 = Dice (1945) or Sorensen (1948)
+# 6 = Hamann coefficient
+# 7 = Ochiai (1957)
+# 8 = Sokal & Sneath (1963)
+# 9 = Phi of Pearson
+# 10 = S2 coefficient of Gower & Legendre
+
+dist.binary(DF_pa, method=0)
+```
+
+## **2.2. Cálculo de matrices de distancia**
+
+```{r}
+# Distancias con vegan
+dis_hell <- vegdist(bio_hell, method="euclidean")
+dis_chor <- vegdist(bio_chord, method="euclidean")
+dis_chi <- vegdist(bio_chi, method="euclidean")
+dis_bc <- vegdist(bio, method="bray")
+dis_bc2 <- vegdist(log1p(bio), method="bray")
+dis_jac <- vegdist(bio_pa, method="jaccard")
+dis_euc <- vegdist(amb, method="euclidean")
+
+# Visualizando las matrices de distancias
+fviz_dist(dis_hell, order = FALSE)
+range(dis_hell)
+fviz_dist(dis_chor, order = FALSE)
+range(dis_chor)
+fviz_dist(dis_chi, order = FALSE)
+range(dis_chi)
+fviz_dist(dis_bc, order = FALSE) 
+range(dis_bc) #Interpretable
+fviz_dist(dis_bc2, order = FALSE) 
+range(dis_bc2) #Interpretable
+fviz_dist(dis_jac, order = FALSE) 
+range(dis_jac) #Interpretable
+fviz_dist(dis_euc, order = FALSE) 
+range(dis_euc) 
+```
+
+# **3. Agrupamiento Jerárquico**
+
+## **3.1. Base de datos de trabajo**
+
+```{r}
+library(ade4)
+data("atlas")
+datos_aves <- atlas$birds
+View(datos_aves)
+range(datos_aves)
+```
+
+## **3.2. Creación del objeto cluster: árbol de agrupamiento jerárquico**
+
+```{r}
+# Transformación (si es requerido)
+hell <-decostand(datos_aves, method="hellinger")
+
+# Cálculo de la matriz de distancia
+dist <- vegdist(hell, method="euclidean")
+
+# Creación del objeto hclust()
+cluster <- hclust(dist, method="ward.D2")
+
+# Ploteo básico
+plot(cluster)
+
+# Altura de los nodos del árbol
+cluster$height
+```
+
+## **3.3. Comparando dendrogramas**
+
+```{r}
+# Convertir los objetos hclust a objetos dendrogram
+dendro <-  hclust(dist, method="ward.D2") %>% as.dendrogram()
+dendro2 <- hclust(dist, method="complete") %>% as.dendrogram()
+dendro3 <- hclust(dist, method="average") %>% as.dendrogram()
+
+# Comparación simple
+library(dendextend)
+tanglegram(dendro2,dendro3)
+
+# Ver el porcentaje de entrelazamiento con Baker’s Gamma Index
+set.seed(123)
+cor_bakers_gamma(dendro, dendro2)
+cor_bakers_gamma(dendro, dendro3)
+cor_bakers_gamma(dendro2, dendro3)
+
+# Gráfico más interpretable de entrelazamiento 
+tanglegram(dendro, dendro3,
+           highlight_distinct_edges = FALSE, 
+           common_subtrees_color_lines = TRUE,
+           common_subtrees_color_branches = TRUE)
+
+# Coeficiente de aglomeración del árbol
+# nos indica su ajuste en escala de 0 (malo) a 1 (excelente)
+library(cluster)
+agnes(dist, method="ward")$ac
+agnes(dist, method="complete")$ac
+agnes(dist, method="average")$ac
+agnes(dist, method="single")$ac
+
+```
+
+## **3.4. Test de Permutaciones de Agrupamientos Jerárquicos**
+
+Este test está descrito en la literatura pero no existe aplicación precreada en R. Aquí les dejo un código elaborado por mi persona para generar el test de permutaciones que nos permita identificar la significancia de cada nodo.
+
+El árbol deberá ser cortado a la altura de los nodos no significativos. El test de permutaciones permuta los valores de cada fila de la matriz original para con ellos crear un árbol por permutación, de cada árbol se obtiene la altura de cada nodo. Luego, se compara la altura del árbol orginal con las alturas de los N árboles generados en las N permutaciones. Finalmente, calcula la probabilidad de en las N permutaciones cada nodo tenga un valor mayor al original. Solo los nodos significativos son estables en la solución final de cada uno de los N árboles permutados. 
+
+```{r}
+# Cluster: objeto hclust
+# DF: base de datos con variables de análisis
+# n: número de permutaciones
+# metod.dist: método de distancias con la que se creó el objeto hclust
+# metodo.aglom: método de aglomeración con la que se creó el objeto hclust
+
+permut_dendro <-function(cluster, DF, n=9999,
+                         metodo.dist="euclidean", 
+                         metodo.aglom="ward.D2"){
+  n<-n
+  lista <- list()
+  for (i in 1:n){
+    sample_col<-function(x){
+      x[sample(length(x))]
+      }
+    permutado <- apply(DF, 2, sample_col)
+    distancia <- vegdist(permutado, method=metodo.dist)
+    dendro_objeto <- hclust(distancia, method=metodo.aglom)
+    lista[[i]] <- dendro_objeto$height <= cluster$height 
+    }
+  df<-do.call(rbind.data.frame, lista)
+  colnames(df)<-paste0("nodo",1:ncol(df))
+  round(colMeans(df), 3)
+}
+
+# Test de permutaciones para identificar nodos no significativos
+# y nivel del corte del árbol
+permut_dendro(cluster, hell)
+
+# Función plot_nodos() para identificar nodos no significativos 
+plot_nodos <- function(objeto_cluster, DF, num.nodos=TRUE) {
+  require(dendextend)
+  require(tidyverse)
+  dend <- as.dendrogram(objeto_cluster)%>% hang.dendrogram()
+  dend <- dend %>% set_labels(rownames(DF))
+  xy <- dend %>% get_nodes_xy()
+  is_internal_node <- is.na(dend %>% get_nodes_attr("leaf"))
+  is_internal_node[which.max(xy[,2])] <- FALSE
+  xy <<- xy[is_internal_node,]
+  if(num.nodos == FALSE){
+    plot(dend)
+    text(xy[,1], xy[,2], 
+         labels=format(xy[,2], digits=2), col="red")
+  } else {
+    names(objeto_cluster$height) <- 
+      paste0("nodo",1:length(objeto_cluster$height))
+    alturas <- head(objeto_cluster$height, -1)
+    etiquetas <<- match(xy[,2],alturas)
+  plot(dend)
+  text(xy[,1], xy[,2], 
+       labels=etiquetas, col="red")
+  }
+}
+
+# Con num.nodos=TRUE muestra el número del nodo
+# Con num.nodos=FALSE muestra la altura del nodo
+plot_nodos(cluster, hell, num.nodos=TRUE)
+plot_nodos(cluster, hell, num.nodos=FALSE)
+
+```
+
+También se puede identificar en número de grupos óptimos con el método del codo utilizando la función `fviz_nbclust()`
+```{r}
+# Usa la base de datos con la que se creó el objeto hclust()
+fviz_nbclust(hell, FUN = hcut, method = "wss")
+```
+
+## **3.5. Dendrograma Final**
+
+```{r}
+# Gráfico exploratorio de fviz_dend()
+fviz_dend(dendro)
+
+# Adicionar agrupamientos por color
+fviz_dend(dendro, k=3)
+fviz_dend(dendro, k=5)
+
+# Convertir a horizontal
+fviz_dend(dendro, k=3, horiz=TRUE)
+
+# Eliminar el título y modificar títulos de ejes
+fviz_dend(dendro, k=3, horiz=TRUE, main="",
+          ylab="Distancia de Hellinger", 
+          xlab = "Sitios")+
+  labs(caption = "Transformación de Hellinger \nMétodo de distancia: Euclidean \nMétodo de aglomeración: Ward.D2")
+
+# Adicionando rectángulos
+arb <- fviz_dend(dendro, k=3, horiz=TRUE, main="", 
+          ylab="Distancia de Hellinger", 
+          xlab = "Sitios",
+          labels_track_height=-0.3,
+          palette = "Set1",
+          rect=TRUE, 
+          rect_fill = TRUE,
+          rect_border="Set1")  +
+  labs(caption = "Transformación de Hellinger \nMétodo de distancia: Euclidean \nMétodo de aglomeración: Ward.D2")
+
+# Más avanzado: colocarle la altura de los nodos
+datos_nodos <- as.data.frame(xy)
+datos_nodos <- data.frame(datos_nodos, etiq = round(datos_nodos$V2,2))
+datos_nodos
+arb + 
+  geom_label(data=datos_nodos, aes(x=V1, y=V2, label=etiq), size=3)
+```
+
+
+## **3.6. Ejercicio Dendrograma**
+
+Se realizó un estudio `geomorfológico` en el que se evaluaron diferentes variables ambientales asociadas a 75 puntos de muestreo en un Valle de los Andes. El objetivo era identificar qué puntos de muestreo son afines entre sí en base a los atributos mostrados en la tabla `geomorphology`:
+
+-   Profundidad de Valle: `Valley.depth` (7)
+
+-   Insolación difusa: `Diffuse.insolation` (8)
+
+-   Efecto de viento: `Wind.effect` (9)
+
+-   Índice de convergencia: `Convergence.index` (10)
+
+-   Índice de rugosidad del terreno: `Terrain.Ruggedness.Index` (11)
+
+### **Pasos a seguir:**
+
+1.  Carga la base de datos `geomorphology` de la librería `FactoMiner`.
+2.  Separa las columnas de la `7` a la `11` para realizar el análisis de agrupamiento jerárquico.
+3.  Realiza un árbol de agrupamiento jerárquico usando la base de datos `estandarizada`, con el método de `distancias euclideano` y el mejor `método aglomerativo` hallado (calcular los coeficientes de aglomeración).
+4.  *Embellece* el árbol con todos los códigos que creas conveniente (argumentos de la propia función y/o funciones adicionales de ggplot).
+
+```{r}
+# Cargar base de datos
+library(FactoMineR)
+data("geomorphology")
+
+# Seleccionar las columnas 7 al 11 como variables de análisis
+dat <- geomorphology %>% select(7:11)
+
+# Trabajar la estandarización, cálculo de 
+# la matriz de distancia 
+df <- dat %>% decostand("standardize") 
+dd <- dist(df, method = "euclidean")
+
+# Mejor método aglomerativo
+library(cluster)
+agnes(dd, method="ward")$ac
+agnes(dd, method="complete")$ac
+agnes(dd, method="average")$ac
+agnes(dd, method="single")$ac
+
+# Generar objeto hclust
+hc <- hclust(dd, method = "ward.D2")
+
+# Revisión del k óptimo con el método del codo
+fviz_nbclust(df, FUN = hcut, method = "wss")
+
+# Análisis de permutaciones
+permut_dendro(hc, df)
+plot_nodos(hc, df, num.nodos=TRUE)
+
+# Más avanzado: colocarle la altura de los nodos
+datos_nodos <- as.data.frame(xy)
+datos_nodos <- data.frame(datos_nodos, etiq = round(datos_nodos$V2,2))
+datos_nodos
+
+arbol <- fviz_dend(hc, 
+          main="", # título del gráfico
+          k = 8,    # Número de grupos
+          cex = 0.5,  # Tamaño de los textos (en las hojas)
+          rect = TRUE,  # Habilitar rectángulos
+          rect_fill = TRUE,  # Habilitar rellenado de rectángulos
+          horiz = TRUE,  # Horizontal
+          palette = "Dark2",  # Paleta para coloreo
+          rect_border = "Dark2", # Paleta para rellenado
+          color_labels_by_k = TRUE, # Etiquetas (hojas) de color
+          labels_track_height = 0) # amplitud de la caja para
+
+arbol
+
+arbol + geom_label(data=datos_nodos, aes(x=V1, y=V2, label=etiq), size=3)
+```
+
+# **4. Análisis de Correspondencia (CA)**
+
+Se utilizará una base de datos de flora para realizar un Análisis de la  vegetación de las Praderas de Dunas Holandesas. Exploraremos la aplicación de CA y su corrección para el efecto de "herradura de caballo": Detrended Correspondence Analysis (DECORANA).
+
+```{r}
+# Carguemos la base de datos "vltava-spet.xlsx"
+library(vegan)
+data("dune")
+View(dune)
+help(dune)
+```
+
+## **4.1. Cálculo del Análisis de Correspondencia**
+
+```{r}
+# Generar el Análisis de Correspondencia
+library(ca)
+corana <- ca(dune)
+
+# Ver el resumen estadístico
+summary(corana)
+
+# Gráfico Final del CA
+fviz_ca(corana, col.col="black", repel=TRUE)
+```
+
+## **4.1.1. Cálculo del Análisis de Correspondencia sin Tendencia (DECORANA)**
+
+```{r}
+# Crear el DCA de la base de datos dune
+# iweigh=1 para quitarle el peso a las especies raras
+deco <- decorana(dune, iweigh=1)
+summary(deco)
+
+# Biplot sencillo
+plot(deco)
+```
+
+## **4.1.2. Gráfico final del Decorana**
+
+```{r}
+# Obtener tabla de coordenadas de las especies (columnas) 
+columnas <- scores(deco, dis="species") %>% as.data.frame()
+
+# Obtener tabla de coordenadas de los sitios (filas) 
+filas <- scores(deco, dis="sites")  %>% as.data.frame()
+
+# Datos para agrupamiento
+data("dune.env")
+Grupos <- dune.env$Moisture %>% as.character() %>% as.factor()
+
+# Gráfico avanzado con ggplot2
+aes_filas <- aes(x=DCA1, y=DCA2, label=rownames(dune), color=Grupos)
+aes_columnas <- aes(x=DCA1, y=DCA2,label=rownames(columnas))
+                    
+ggplot()+
+  geom_point(data=filas, aes_filas)+
+  ggrepel::geom_text_repel(data=filas, aes_filas, show.legend = FALSE)+
+  ggrepel::geom_text_repel(data=columnas, aes_columnas, color="gray40")+
+ #stat_ellipse(geom="polygon",alpha=0.1, aes(fill=Grupos))+
+  geom_point(data=columnas,aes_columnas, shape=19, size=2)+
+  geom_vline(xintercept = 0, lty=2, color="gray60")+
+  geom_hline(yintercept = 0, lty=2, color="gray60")+
+  theme_test()
+```
+
+# **5. Análisis de Componentes Principales (PCA)**
+
+```{r}
+# Carguemos la base de datos "variables ambientales.xlsx"
+varamb <- openxlsx::read.xlsx("bases/variables ambientales.xlsx")
+varamb <- openxlsx::read.xlsx(file.choose())
+```
+
+## **5.1. Revisar la base de datos**
+
+```{r}
+# Revisemos la base de datos
+str(varamb)
+
+# Revisar las relaciones entre variables
+# install.packages("GGally")
+library(GGally)
+ggpairs(varamb)
+ggpairs(as.data.frame(scale(varamb)))
+
+```
+
+## **5.2. Aplicando el PCA**
+
+```{r}
+# Decomposición de eigenvalores manual 
+# (solo para efectos explicativos, no es necesario hacer esto siempre)
+eigen(cov(scale(varamb)))$values
+sqrt(eigen(cov(scale(varamb)))$values)
+
+# Generar el PCA: auto-estandarizar la base en la misma función
+# PCA basado en distancias euclideanas
+pca_est <- prcomp(varamb, scale.=TRUE) 
+
+# Generar el PCA: transformando manualmente 
+# la base antes de la usar la función.
+# PCA basado en distancias euclideanas
+varamb_esc <- scale(varamb)
+prcomp(varamb_esc, scale.=FALSE) # PCA basado en distancias euclideana
+
+# Revisar el PCA basado en distancias euclideanas
+summary(pca_est)
+```
+
+En este sentido, se puede utilizar el argumento scale. para desactivarlo y darle a la función de pca prcomp() la transformación que uno desee para calcular tb-PCA (PCA basado en transformaciones):
+
+-   PCA basado en distancias de Chi cuadrado (equivale a CA).
+-   PCA basado en distancias de Hellinger.
+-   PCA basado en distancias de Chord.
+
+```{r}
+# usemos la base de datos bio
+View(bio) 
+
+# Generar el PCA: basado en distancias de Chi cuadrado
+bio_chi <- decostand(bio, method="chi.square")
+pca_chi <- prcomp(bio_chi, scale.=FALSE)
+summary(pca_chi)
+biplot(pca_chi, cex=0.5)
+
+# Generar el PCA: basado en distancias de Hellinger
+bio_hell <- decostand(bio, method="hellinger")
+pca_hell <- prcomp(bio_hell, scale.=FALSE)
+summary(pca_hell)
+biplot(pca_hell, cex=0.5)
+
+# Generar el PCA: basado en distancias de Chord
+bio_chord <- decostand(bio, method="normalize")
+pca_chord <- prcomp(bio_chord, scale.=FALSE)
+summary(pca_chord)
+biplot(pca_chord, cex=0.5)
+```
+
+## **5.3. Gráfico de PCA**
+
+```{r}
+library(factoextra)
+
+# Ver la contribución de las variables a cada PC
+fviz_contrib(pca_hell, choice="var", axes = 1)
+fviz_contrib(pca_hell, choice="var", axes = 2)
+
+# Realizar el Screeplot
+fviz_screeplot(pca_hell)
+
+# Graficar PCA
+fviz_pca_ind(pca_hell)
+fviz_pca_var(pca_hell)
+fviz_pca_biplot(pca_hell)
+
+# PCA de individuos utilizando la calidad de su proyección
+# cos2: individuos con valores más altos están mejor proyectados.
+gradiente1 <- c("orange","blue","red")
+g1_pca <- fviz_pca_ind(pca_hell,  col.ind="cos2", title="",
+             gradient.cols=gradiente1, repel=TRUE)
+g1_pca
+
+# PCA de variables utilizando la calidad de su proyección
+# cos2: variables con valores más altos, más importantes.
+gradiente2 <-  c("#00AFBB", "#E7B800", "#FC4E07")
+g2_pca <- fviz_pca_var(pca_hell, col.var="cos2", title="",
+             gradient.cols=gradiente2, repel=TRUE)
+g2_pca
+
+# Biplot
+fviz_pca_biplot(pca_hell, col.var="cos2", col.ind="black", 
+                title="", gradient.cols=gradiente1, repel=TRUE)
+fviz_pca_biplot(pca_hell, col.var="gray60", col.ind="cos2", 
+                title="", gradient.cols=gradiente1, repel=TRUE)
+
+
+# Dos gráficos separados
+# install.packages("ggpubr")
+library(ggpubr)
+ggarrange(g1_pca, g2_pca)
+```
+
+## **5.4. Ejercicio PCA**
+
+El objetivo es, utilizando la base de datos iris, realizar un PCA basado en distancias euclidianas para luego aprender a utilizar una columna categórica de la base de datos original con el fin de color y agrupamiento al PCA final.
+
+1.  Carga la base de datos iris con `data("iris")`
+2.  Extrae las columnas de análisis (solo numéricas) que son las primeras 4 columnas de la tabla iris.
+3.  Genera el PCA permitiendo la estandarización de las variables.
+4.  Crea un gráfico de biplot de PCA con `fviz_pca_biplot()`
+
+```{r}
+data("iris")
+data_analisis <- iris[,1:4]
+irispca <-prcomp(data_analisis, scale.=TRUE) 
+fviz_pca_biplot(irispca, title="", repel=TRUE, col.var="grey60",
+                habillage=iris$Species,
+                addEllipses=TRUE, ellipse.type= "norm")+
+    guides(color=guide_legend(override.aes=list(label = rep("",3))))+
+  labs(title="", color="Especies", fill="Especies")+
+  theme(legend.position="top")
+```
+
+# **6. Análisis de Coordenadas Principales (PCoA, MDS)**
+
+Trabajaremos con una base de datos de especies de flora a lo largo del río Moldava (Vltava en Checo), República Checa. Listado de nombres completos de especies [haciendo click aquí](https://raw.githubusercontent.com/zdealveindy/anadat-r/master/data/vltava-ell.txt). 
+
+El estudio busca identificar las relaciones que hay entre las parcelas de estudio (filas) en base a su diversidad florística (especies, una por columna).
+
+```{r}
+# Carguemos la base de datos "vltava-spet.xlsx"
+spe <- openxlsx::read.xlsx("bases/vltava-spet.xlsx")
+spe <- openxlsx::read.xlsx(file.choose())
+
+# Carguemos la base de datos "vltava-env.xlsx"
+spe_env <- openxlsx::read.xlsx("bases/vltava-env.xlsx")
+spe <- openxlsx::read.xlsx(file.choose())
+```
+
+## **6.1. Calculo del PCoA (MDS)**
+
+```{r}
+# Reconocer cuándo se necesitra logaritmizar la base de datos
+# para realizar la distancia de Bray-Curtis
+View(spe)
+spe |> range()
+log1p(spe) |> range()
+
+# Calcular la distancia de Bray-Curtis
+spe_bc_log <- vegdist(log1p(spe), "bray") 
+
+#------------------------------------------------------------------- -
+# PCoA sencillo utilizando la función pcoa() de la librería ape
+pcoa <- pcoa(spe_bc_log, correction="none")
+
+# Identificar si se requiere corrección por eigenvalores negativos
+pcoa$values
+
+# Aplicando métodos de corrección
+pcoa_corr <- pcoa(spe_bc_log, correction="lingoes")
+pcoa_corr$values
+
+# Biplot con funciones básicas
+biplot(pcoa_corr)
+biplot(pcoa_corr, main = '', type = 'n')
+
+#------------------------------------------------------------------- -
+# Utilizando una función de vegan para análisis canónico
+# un truco que permite proyectar nombres de especies sobre el gráfico
+pcoa_corr <- capscale(log1p(spe)~ 1, distance = 'bray', add="lingoes")
+
+# Matrices de coordenadas PCoA (MDS) de especies y de sitios
+pcoa_corr$CA$v
+pcoa_corr$CA$u
+```
+
+## **6.2. Gráficoss PCoA (MDS)**
+
+### **6.2.1. PCoA con los resultados de la función pcoa()**
+
+Es más sencilla para graficar, pero la limitante es que no se puede proyectar las especies (columnas) en el gráfico final PCoA.
+
+```{r}
+# 1) Gráfico para pcoa() de la librería ape
+# Extraer las coordenadas de los sitios (filas)
+datosplot <- pcoa$vectors %>% as.data.frame()
+
+# PCoA sin agrupamiento
+datosplot %>% 
+  ggplot(aes(x=Axis.1, y= Axis.2, 
+             label= rownames(datosplot), 
+             fill=spe_env$GROUP, color=spe_env$GROUP))+
+  geom_point()+
+  ggrepel::geom_text_repel()+
+  labs(fill="Grupos", color="Grupos")+
+  theme_bw()
+
+# PCoA con agrupamiento
+spe_env$GROUP <- factor(spe_env$GROUP)
+datosplot <- pcoa$vectors %>% as.data.frame()
+
+datosplot %>% 
+  ggplot(aes(x=Axis.1, y= Axis.2, 
+             label= rownames(datosplot), 
+             fill=spe_env$GROUP, color=spe_env$GROUP))+
+  geom_point()+
+  ggrepel::geom_text_repel()+
+  labs(fill="Grupos", color="Grupos")+
+  theme_bw()+
+  # Adicionar
+  stat_ellipse(geom="polygon", alpha=0.2)+
+  guides(color=guide_legend(override.aes=list(label=rep("",2))))
+```
+
+### **6.2.2. PCoA con los resultados de la función capscale()**
+
+Es más compleja para graficar, pero la ventaja es que se puede proyectar las especies (columnas) en el gráfico final PCoA.
+
+```{r}
+# Extraer las coordenadas de los sitios (filas)
+datosplot2_u <- pcoa_corr$CA$u %>% as.data.frame()
+
+# Extraer las coordenadas de las especies (columnas)
+datosplot2_v <- pcoa_corr$CA$v %>% as.data.frame()
+
+# Gráfico
+# Definir aes complejo fuera del gráfico
+aes <- aes(x=MDS1, y= MDS2, label= rownames(datosplot2_u),
+           fill=spe_env$GROUP, color=spe_env$GROUP)
+ggplot()+
+  geom_point(data = datosplot2_u, aes)+
+  ggrepel::geom_text_repel(data=datosplot2_u,aes, show.legend = FALSE)+
+  stat_ellipse(geom="polygon", alpha=0.2, data=datosplot2_u, aes)+
+  ggrepel::geom_text_repel(data=datosplot2_v,aes(x=MDS1, y= MDS2, 
+                           label=rownames(datosplot2_v)), 
+                           color="gray60", size=3)+
+  geom_vline(xintercept=0, lty=2, color="gray70")+
+  geom_hline(yintercept=0, lty=2, color="gray70")+
+  labs(fill="Grupos", color="Grupos")+
+  theme_bw()
+```
+
+# **7. Escalamiento Multidimensional No Métrico (NMDS)**
+
+## **7.1. Definir las características del NMDS**
+
+```{r}
+# Exploremos cuantas dimensiones debemos pedirle al NMDS
+# Generemos el screeplot con los resultados del NMDS hasta 10 dimensiones
+library(goeveg)
+dimcheckMDS(as.matrix(spe_bc_log), k = 10, 
+            distance="bray", trymax=100, autotransform=TRUE)
+abline(a=0.10, b=0, col="blue", lty=2)
+abline(a=0.05, b=0, col="darkgreen", lty=2)
+```
+
+## **7.2. Ejecutar el NMDS**
+
+```{r}
+# La forma recomendada de ejecutar NMDS (Minchin 1987): 
+# tomar un primer NMDS como punto de inicio del NMDS final
+set.seed(123)
+prueba <- metaMDS(log1p(spe), distance="bray", 
+                  k=5, trymax=100, autotransform=TRUE)
+set.seed(123)
+nmds <- metaMDS(log1p(spe), distance="bray", k=5, trymax=100, autotransform=TRUE, previous.best=prueba)
+
+# Estrés del NMDS
+#      valores   < 0.1             ajuste justo
+#      valores   < 0.1 y > 0.05    buen ajuste
+#      valores   =< 0.05           ajuste ideal 
+nmds$stress
+
+# Generar el gráfico de estrés (Diagrama de Shepard)
+stressplot(nmds)
+```
+
+## **7.3. Gráfico Final de NMDS**
+
+```{r}
+# Gráfico avanzado del NMDS
+# Función preGraphNMDS() genera dos objetos
+# df_puntos y df_variables. Estos nos permiten tener
+# la información necesaria para crear el gráfico final
+grupos_kmeans_NMDS <- function(DF, objeto_nmds, k = 2){
+  require(tidyverse)
+  require(stats)
+  require(vegan)
+  DF_k <- kmeans(DF, centers = k, nstart=25)
+  nueva_kid <- data.frame(DF, Grupo=DF_k$cluster %>% as.factor())
+  df_puntos <<- scores(objeto_nmds) %>% cbind(nueva_kid) %>% as.data.frame()
+  df_variables <<- scores(objeto_nmds, "species") %>% as.data.frame()
+}
+
+# Usemos grupos_kmeans_NMDS()
+grupos_kmeans_NMDS(log1p(spe), nmds, k=4)
+View(df_puntos)
+View(df_variables)
+
+# Gráfico Final con ggplot2
+ggplot() + 
+   stat_ellipse(data=df_puntos, geom="polygon", alpha=0.2,  
+                aes(x=NMDS1, y=NMDS2, fill=Grupo, color=Grupo,label =Grupo))+
+  geom_point(data=df_puntos, aes(x=NMDS1, y=NMDS2, color=Grupo, shape=Grupo))+
+  ggrepel::geom_text_repel(data=df_puntos, 
+                           aes(x=NMDS1, y=NMDS2, label=rownames(df_puntos)))+
+  ggrepel::geom_text_repel(data=df_variables, color ="gray40",
+            aes(x=NMDS1, y=NMDS2, label=rownames(df_variables)))+
+  theme_bw()
+```
+
