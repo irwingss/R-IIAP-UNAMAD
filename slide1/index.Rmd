@@ -44,7 +44,7 @@ options(htmltools.dir.version = FALSE)
 opts_chunk$set(fig.width = 7.252, fig.height = 4, dpi = 600,
                fig.retina=4, warning = FALSE, message = FALSE, cache=FALSE)
 # Xaringan settings
-xaringanExtra::use_tile_view() # xaringan-tile-view
+xaringanExtra::use_tile_view() 
 xaringanExtra::use_fit_screen() # xaringan-fit-screen
 xaringanExtra::use_clipboard() #clipboard
 xaringanExtra::use_editable(expires = 1) #Editable
