@@ -729,7 +729,7 @@ Los axiomas matemático de los espacios métricos son ( $d_{ab}$ es la distancia
 
 .pull-right[
 ```{r, echo=F, out.width='100%', fig.align='center'}
-knitr::include_graphics("figs/cuadrado.jpg")
+knitr::include_graphics("figs/Cuadrado.jpg")
 ```
 ]
 
