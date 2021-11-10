@@ -22,14 +22,12 @@ output:
     includes:
       after_body: insert-logo.html #class: hide-logo
 ---
-class: title-slide
+class: title-slide, middle, center
 
-<br>
-<br>
-# <span style = 'font-size: 100%;color:#5f00db;'>Análisis Multivariados en R</span>
-## <span style = 'font-size: 90%;color:#212121;'>Curso Colaborativo IIAP - UNAMAD</span>
+# <span style = 'font-size: 110%;color:#5f00db;'>Análisis Multivariados en R</span>
+## <span style = 'font-size: 75%;color:#212121;'>Curso Colaborativo IIAP - UNAMAD</span>
 ### <span style = 'font-size: 85%;color:#212121;'>Irwing S. Saldaña</span>
-### <span style = 'font-size: 80%;color:#212121;'><br>[Instituto de Ciencias Antonio Brack](https://www.brackinstitute.com/)<br>Departamento de Ecoinformática y Biogeografía<br>Perú, 2021</span>
+### <span style = 'font-size: 80%; color:#919191; font-weight:lighter;'>[Instituto de Ciencias Antonio Brack](https://www.brackinstitute.com/)<br>Departamento de Ecoinformática y Biogeografía<br>Perú, 2021</span>
 
 ```{r setup, include = FALSE}
 library(knitr)
@@ -51,7 +49,7 @@ library(xaringanthemer)
 style_mono_accent(base_color = "#5f00db",
                   title_slide_background_color="white",
                   code_highlight_color="#8ae8ff",
-                  link_color="#71e3ff",
+                  link_color="#52d3f2",
                   colors = c(
                     red = "#f34213", 
                     purple = "#3e2f5b",
@@ -67,7 +65,7 @@ style_mono_accent(base_color = "#5f00db",
     opacity: 0.9;
     position: absolute;
     text-align: left;
-    height: 20px;
+    height: 26px;
     font-size: 12pt;
     left: 120px;
     bottom: 18px;
@@ -123,7 +121,7 @@ include_graphics("figs/aboutme.png")
 <span style= 'font-family: calibri; color: white'>Dpto. de Ecoinformática y Biogeografía,<br>
 Instituto de Ciencias Antonio Brack, Perú</span>
 
-.white[[Website](https://www.brackinstitute.com/)|[ResearchGate](https://www.researchgate.net/profile/Irwing-Saldana)|[Linkedin](https://www.linkedin.com/in/irssald/)|[R Latam Blog](https://rlatam.blog/) ]
+.white[[Website](https://www.brackinstitute.com/)|[ ResearchGate ](https://www.researchgate.net/profile/Irwing-Saldana)|[ Linkedin ](https://www.linkedin.com/in/irssald/)|[ R Latam Blog ](https://rlatam.blog/)]|[ Github ](https://github.com/irwingss)
 
 ---
 class: inverse, middle, center , animated, slideInRight
