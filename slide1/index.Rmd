@@ -5,16 +5,11 @@ author:
   - "Irwing S. Saldaña"
   - "Departamento de Ecoinformática y Biogeografía"
   - "Instituto de Ciencias Antonio Brack"
-date: 'useR!2020'
+date: '2021'
 output:
   xaringan::moon_reader:
-    lib_dir: libs
     transition: slide
-    css:
-      - default
-      - rlatinoamerica
-      - rlatinoamerica-fonts
-      - "https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css"
+    css: xaringan-themer.css
     seal: false
     nature:
       highlightStyle: atom-one-light
@@ -29,10 +24,12 @@ class: title-slide
 background-position: 16% 10%
 background-size: 500px
 
-# <span style = 'font-size: 150%;'>Análisis Multivariados en R</span>
-## <span style = 'font-size: 120%;'>Curso Colaborativo IIAP - UNAMAD</span>
-### <span style = 'font-size: 120%;color:#4a4a4a'>Irwing S. Saldaña</span>
-### <br>[Instituto de Ciencias Antonio Brack](https://www.brackinstitute.com/)<br>Departamento de Ecoinformática y Biogeografía<br>Perú, 2021
+<br>
+<br>
+# <span style = 'font-size: 100%;color:#5f00db;'>Análisis Multivariados en R</span>
+## <span style = 'font-size: 90%;color:#212121;'>Curso Colaborativo IIAP - UNAMAD</span>
+### <span style = 'font-size: 85%;color:#212121;'>Irwing S. Saldaña</span>
+### <span style = 'font-size: 80%;color:#212121;'><br>[Instituto de Ciencias Antonio Brack](https://www.brackinstitute.com/)<br>Departamento de Ecoinformática y Biogeografía<br>Perú, 2021</span>
 
 
 ```{r setup, include = FALSE}
@@ -42,7 +39,7 @@ library(kableExtra)
 # Opciones por defecto
 options(htmltools.dir.version = FALSE)
 opts_chunk$set(fig.width = 7.252, fig.height = 4, dpi = 600,
-               fig.retina=4, warning = FALSE, message = FALSE, cache=FALSE)
+               fig.retina=4, warning = FALSE, message = FALSE, cache=TRUE)
 # Xaringan settings
 xaringanExtra::use_tile_view() 
 xaringanExtra::use_fit_screen() # xaringan-fit-screen
@@ -51,6 +48,11 @@ xaringanExtra::use_editable(expires = 1) #Editable
 xaringanExtra::use_scribble() #pencile with s
 xaringanExtra::use_extra_styles(hover_code_line = TRUE, mute_unhighlighted_code = FALSE)
 
+library(xaringanthemer)
+style_mono_accent(base_color = "#5f00db",
+                  title_slide_background_color="white",
+                  code_highlight_color="#2fc7ed",
+                  link_color="#71e3ff")
 ```
 
 ---
@@ -72,7 +74,7 @@ Instituto de Ciencias Antonio Brack, Perú</span>
 ---
 class: inverse, middle, center , animated, slideInRight
 
-# Necesidad de representar el mundo en N-dimensiones
+# Necesidad de representar el mundo <br>en N-dimensiones
 [ Paradoja de Simpson ]
 
 ---
@@ -357,10 +359,6 @@ include_graphics("figs/ggpairs.png")
 # Libro R for Data Science (Wickham & Grolemund, 2017)
 
 [Visita aquí el libro Web, capítulo: Análisis Exploratorio de Datos](https://es.r4ds.hadley.nz/an%C3%A1lisis-exploratorio-de-datos-eda.html)
-
-```{r, echo=F}
-knitr::include_url("https://es.r4ds.hadley.nz/an%C3%A1lisis-exploratorio-de-datos-eda.html")
-```
 
 ---
 

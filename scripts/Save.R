@@ -16,7 +16,7 @@ decktape("https://irwingss.github.io/R-IIAP-UNAMAD/",
          args="--chrome-arg=--disable-web-security")
 
 decktape(
-  "C:/Users/irwin/Documents/Proyectos_de_R/R%20IIAP-UNAMAD/index.html",
+  "https://irwingss.github.io/R-IIAP-UNAMAD/slide1/",
   "/prueba.pdf",
   args = "--chrome-arg=--disable-web-security",
   docker = Sys.which("decktape") == "",
@@ -28,8 +28,8 @@ decktape("index.html", "analisis.pdf")
 
 decktape("https://stackoverflow.com/questions/48753691/cannot-access-cssrules-from-local-css-file-in-chrome-64/49160760#49160760", 
                    "web.pdf")
-
-xaringanBuilder::build_pdf("index.html", complex_slides = TRUE)
+getwd()
+xaringanBuilder::build_pdf("slide1/index.html", complex_slides = TRUE)
 
 cd ./AppData/Roaming/npm/node_modules/decktape/node_modules/puppeteer/lib/cjs/puppeteer/node
 
@@ -52,7 +52,7 @@ install.packages(c("progress", "jsonlite", "pdftools", "digest"))
 source("https://git.io/xaringan2pdf")
 xaringan_to_pdf("https://irwingss.github.io/R-IIAP-UNAMAD")
 xaringan_to_pdf("https://slides.garrickadenbuie.com/extra-special-xaringan/")
-xaringan_to_pdf("https://irwingss.github.io/R-IIAP-UNAMAD/slide1/")
+xaringan_to_pdf("slide1/index.html")
 
 pagedown::chrome_print("C:/Users/irwin/Documents/Proyectos_de_R/R-IIAP-UNAMAD/R-IIAP-UNAMAD/slide1/index.html",output="test.pdf")
 library(chromote)
@@ -65,4 +65,7 @@ pagedown::chrome_print("C:/Users/irwin/Documents/Proyectos_de_R/R-IIAP-UNAMAD/R-
 
 pagedown::chrome_print("C:/Users/irwin/Documents/Proyectos_de_R/R-IIAP-UNAMAD/R-IIAP-UNAMAD/slide1/index.html", output="slides1.pdf")
 
-pagedown::chrome_print("C:/Users/irwin/Documents/Proyectos_de_R/R IIAP-UNAMAD/R-IIAP-UNAMAD/slide1/index.html", output="ejemplo.pdf")
+remotes::install_github('rstudio/pagedown', force=TRUE)
+pagedown::chrome_print("http://127.0.0.1:7276/slide1/index.html", output="ejemplo.pdf")
+
+pagedown::chrome_print("slide1/index.html", format = "pdf")
