@@ -1,1 +1,2 @@
-pagedown::chrome_print("https://irwingss.github.io/R-IIAP-UNAMAD/slide1/", format = "pdf", wait=30, timeout=120)
+pagedown::chrome_print("https://irwingss.github.io/R-IIAP-UNAMAD/slide2/", format = "pdf", wait=30, timeout=120)
+  

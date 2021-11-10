@@ -120,7 +120,7 @@ include_graphics("figs/aboutme.png")
 ```
 
 ### Blgo. Irwing S. Saldaña <br><span style= 'font-size:80%; font-weigth: light;'> Instructor</span>
-<span style= 'font-family: calibri; color: white'>,<br>
+<span style= 'font-family: calibri; color: white'>Dpto. de Ecoinformática y Biogeografía,<br>
 Instituto de Ciencias Antonio Brack, Perú</span>
 
 .white[[Website](https://www.brackinstitute.com/)|[ResearchGate](https://www.researchgate.net/profile/Irwing-Saldana)|[Linkedin](https://www.linkedin.com/in/irssald/)|[R Latam Blog](https://rlatam.blog/) ]
