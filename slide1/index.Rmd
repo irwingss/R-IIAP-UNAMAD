@@ -40,11 +40,11 @@ library(knitr)
 library(tidyverse)
 library(kableExtra)
 # Opciones por defecto
+options(htmltools.dir.version = FALSE)
 opts_chunk$set(fig.width = 7.252, fig.height = 4, dpi = 600,
                fig.retina=4, warning = FALSE, message = FALSE, cache=FALSE)
 # Xaringan settings
 xaringanExtra::use_tile_view() # xaringan-tile-view
-xaringanExtra::use_panelset() # xaringan-panelset,
 xaringanExtra::use_fit_screen() # xaringan-fit-screen
 xaringanExtra::use_clipboard() #clipboard
 xaringanExtra::use_editable(expires = 1) #Editable
@@ -103,9 +103,6 @@ pinguinos %>%
 ---
 # Paradoja de Simpson
 
-.panelset[
-
-.panel[.panel-name[Código]
 ```{r, eval=FALSE}
 # Gráfico con ggplot2
 library(tidyverse)
@@ -118,9 +115,10 @@ pinguinos %>%
        title="Longitud de pico en función de su profundidad") +
   theme_bw()
 ```
-]
 
-.panel[.panel-name[Gráfico]
+---
+# Paradoja de Simpson
+
 ```{r, echo=FALSE, out.width="70%", fig.align='center'}
 # Gráfico con ggplot2
 library(tidyverse)
@@ -133,9 +131,10 @@ pinguinos %>%
        title="Longitud de pico en función de su profundidad") +
   theme_bw()
 ```
-]
 
-.panel[.panel-name[Código+regresión]
+---
+# Paradoja de Simpson
+
 ```{r, eval=FALSE}
 # Gráfico con ggplot2
 library(tidyverse)
@@ -149,9 +148,10 @@ pinguinos %>%
        title="Longitud de pico en función de su profundidad") +
   theme_bw()
 ```
-]
 
-.panel[.panel-name[Gráfico+regresión]
+---
+# Paradoja de Simpson
+
 ```{r, echo=FALSE, out.width="70%", fig.align='center'}
 # Gráfico con ggplot2
 library(tidyverse)
@@ -165,9 +165,10 @@ pinguinos %>%
        title="Longitud de pico en función de su profundidad") +
   theme_bw()
 ```
-]
 
-.panel[.panel-name[Código+Variable]
+---
+# Paradoja de Simpson
+
 ```{r, eval=FALSE}
 # Gráfico con ggplot2
 library(tidyverse)
@@ -183,9 +184,10 @@ pinguinos %>%
        title="Longitud de pico en función de su profundidad") +
   theme_bw()
 ```
-]
 
-.panel[.panel-name[Gráfico+Variable]
+---
+# Paradoja de Simpson
+
 ```{r, echo=FALSE, out.width="70%", fig.align='center'}
 # Gráfico con ggplot2
 library(tidyverse)
@@ -201,8 +203,6 @@ pinguinos %>%
        title="Longitud de pico en función de su profundidad y la variable especie") +
   theme_bw()
 ```
-]
-]
 
 ---
 class: inverse, middle, center , animated, slideInRight
@@ -324,8 +324,6 @@ También conocido como exploratory data analysis (EDA). Permite:
 
 # Análisis Exploratorio Básico
 
-.panelset[
-.panel[.panel-name[Código]
 ```{r, eval=FALSE}
 # Carga el archivo "variables ambientales.xlsx"
 ambiente <- openxlsx::read.xlsx(file.choose())
@@ -343,21 +341,15 @@ ggpairs(ambiente,
                                       fill="#5f00db", alpha=0.5)))+
   theme_test()
 ```
-]
 
-.panel[.panel-name[Gráfico ggpairs()]
-```{r, echo=FALSE, out.width='70%', fig.align='center'}
-ambiente <- openxlsx::read.xlsx("bases/variables ambientales.xlsx")
-library(GGally)
-ggpairs(ambiente,
-        upper= list(continuous= wrap("cor", method="spearman",
-                                     color="#5f00db", size=3)),
-        lower= list(continuous= wrap("points", 
-                                       color="#5f00db", alpha=0.5)),
-        diag= list(continuous= wrap("densityDiag", 
-                                      fill="#5f00db", alpha=0.5)))+
-  theme_test()
+---
+
+# Análisis Exploratorio Básico
+
+```{r, fig.align='center', out.width="80%", echo=FALSE}
+include_graphics("figs/ggpairs.png")
 ```
+
 ]
 ]
 
@@ -592,10 +584,7 @@ include_graphics("figs/Comparativo.png")
 ```
 
 ---
-# Medidas de distancias y transformaciones para:
-
-.panelset[
-.panel[.panel-name[Var. ambientales]
+# Medidas de distancias y transformaciones para: Var. ambientales
 
 Si se desea aplicar un PCA:
 
@@ -603,9 +592,8 @@ Si se desea aplicar un PCA:
   - Sobre matriz de datos continuos por naturaleza (mediciones de variables ambientales).
   - Es necesario estandarizar (centrar y escalar) las variables para evitar el error por la escala de medición de las variables.
 
-]
-
-.panel[.panel-name[Abundancias-PCA]
+---
+# Medidas de distancias y transformaciones para: Abundancias-PCA
 
 Si se desea aplicar PCA:
 
@@ -619,9 +607,8 @@ Implica trabajar en un espacio euclidiano con una matriz de datos de abundancias
   - Equivale a aplicar a la matriz de abundancias la transformación de Chord y luego medir distancias euclideanas sobre ello.
   - Le da poco peso, mucho menos que Chord, a las especies raras. Adecuado para PCA o RDA.
   
-]
-
-.panel[.panel-name[Abundancias-CA]
+---
+# Medidas de distancias y transformaciones para: Abundancias-CA
 
 Si se desea aplicar CA:
 
@@ -633,9 +620,8 @@ Es el método típico a aplicar con matrices de biodiversidad (abundancias o pre
   
   - Hacer un PCA con matriz de biodiversidad transformada con Chi-cuadrado equivale (pero no es idéntico) a hacer un CA sobre la matriz original de biodiversidad.
 
-]
-
-.panel[.panel-name[Abundancias-MDS]
+---
+# Medidas de distancias y transformaciones para: Abundancias-MDS
 
 Si se desea aplicar PCoA, también llamado MDS:
 
@@ -644,9 +630,8 @@ Si se desea aplicar PCoA, también llamado MDS:
   - Es el método de distancias más clásico en ecología para matrices de biodiversidad.
   - Preserva la influencia de las abundancias en cada sitio.
 
-]
-
-.panel[.panel-name[Binarios-NMDS]
+---
+# Medidas de distancias y transformaciones para: Binarios-NMDS
 
 Estos métodos no son métricos, por lo que no pueden ser proyectados en un plano euclideano (No es posible PCA). No requiere transformación de las matrices de presencia-ausencia.
 
@@ -660,8 +645,7 @@ $$J(A,B)=\frac{2 \times (A \cap B)}{(A \cup B)+(A \cap B)} = \frac{2 \times (A \
   - Similar a Sørensen. Nació para comparar parcelas de flora con presencia-ausencia. No da tanto peso a las especies más comunes como Sørensen.
   
 $$J(A,B)= \frac{A \cap B}{A \cup B} = \frac{A \cap B}{|A|+|B|-{A \cap B}}$$
-]
-]
+
 
 ---
 class: middle, center 
