@@ -52,4 +52,17 @@ install.packages(c("progress", "jsonlite", "pdftools", "digest"))
 source("https://git.io/xaringan2pdf")
 xaringan_to_pdf("https://irwingss.github.io/R-IIAP-UNAMAD")
 xaringan_to_pdf("https://slides.garrickadenbuie.com/extra-special-xaringan/")
-xaringan_to_pdf("https://irwingss.github.io/R-IIAP-UNAMAD/")
+xaringan_to_pdf("https://irwingss.github.io/R-IIAP-UNAMAD/slide1/")
+
+pagedown::chrome_print("C:/Users/irwin/Documents/Proyectos_de_R/R-IIAP-UNAMAD/R-IIAP-UNAMAD/slide1/index.html",output="test.pdf")
+library(chromote)
+ChromoteSession$new(auto_events = FALSE)
+xaringan_to_pdf("https://irwingss.github.io/R-IIAP-UNAMAD/slide1")
+xaringan_to_pdf("https://slides.garrickadenbuie.com/extra-special-xaringan/")
+
+pagedown::chrome_print("C:/Users/irwin/Documents/Proyectos_de_R/R-IIAP-UNAMAD/R-IIAP-UNAMAD/slide1/index.html", output="diapos.pdf")
+
+
+pagedown::chrome_print("C:/Users/irwin/Documents/Proyectos_de_R/R-IIAP-UNAMAD/R-IIAP-UNAMAD/slide1/index.html", output="slides1.pdf")
+
+pagedown::chrome_print("C:/Users/irwin/Documents/Proyectos_de_R/R IIAP-UNAMAD/R-IIAP-UNAMAD/slide1/index.html", output="ejemplo.pdf")
