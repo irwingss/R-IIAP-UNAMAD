@@ -1,0 +1,232 @@
+---
+title: "Análisis Multivariados en R - 2"
+subtitle: "Curso Colaborativo IIAP - UNAMAD"  
+author: 
+  - "Irwing S. Saldaña"
+  - "Departamento de Ecoinformática y Biogeografía"
+  - "Instituto de Ciencias Antonio Brack"
+date: '2021'
+output:
+  xaringan::moon_reader:
+    lib_dir: assets
+    chakra: assets/remark-0.14.0.min.js
+    transition: slide
+    css: xaringan-themer.css
+    seal: false
+    nature:
+      highlightStyle: atom-one-light
+      highlightLines: true
+      ratio: "16:9"
+      countIncrementalSlides: true
+      slideNumberFormat: "%current%"
+    includes:
+      after_body: insert-logo.html #class: hide-logo
+---
+class: title-slide
+
+<br>
+<br>
+# <span style = 'font-size: 100%;color:#5f00db;'>Análisis Multivariados en R</span>
+## <span style = 'font-size: 90%;color:#212121;'>Curso Colaborativo IIAP - UNAMAD</span>
+### <span style = 'font-size: 85%;color:#212121;'>Irwing S. Saldaña</span>
+### <span style = 'font-size: 80%;color:#212121;'><br>[Instituto de Ciencias Antonio Brack](https://www.brackinstitute.com/)<br>Departamento de Ecoinformática y Biogeografía<br>Perú, 2021</span>
+
+```{r setup, include = FALSE}
+library(knitr)
+library(tidyverse)
+# Opciones por defecto
+options(htmltools.dir.version = FALSE)
+opts_chunk$set(fig.width = 7.252, fig.height = 4, dpi = 600,
+               fig.retina=4, warning = FALSE, message = FALSE, 
+               cache=TRUE)
+# Xaringan settings
+xaringanExtra::use_tile_view() 
+xaringanExtra::use_fit_screen() # xaringan-fit-screen
+xaringanExtra::use_clipboard() #clipboard
+xaringanExtra::use_editable(expires = 1) #Editable
+xaringanExtra::use_scribble() #pencile with s
+xaringanExtra::use_extra_styles(hover_code_line = TRUE, mute_unhighlighted_code = FALSE)
+
+library(xaringanthemer)
+style_mono_accent(base_color = "#5f00db",
+                  title_slide_background_color="white",
+                  code_highlight_color="#8ae8ff",
+                  link_color="#71e3ff",
+                  colors = c(
+                    red = "#f34213", 
+                    purple = "#3e2f5b",
+                    orange = "#ff8811",
+                    green = "#136f63",
+                    white = "#FFFFFF"))
+```
+
+```{css, echo=FALSE}
+/* Footnote */
+.remark-slide-content:after {
+    content: "Blgo. Irwing S. Saldaña | Instituto de Ciencias Antonio Brack, Perú";
+    opacity: 0.9;
+    position: absolute;
+    text-align: left;
+    height: 20px;
+    font-size: 12pt;
+    left: 120px;
+    bottom: 18px;
+    font-weight: normal;
+    width: 1200px;
+}
+
+.scroll-box-8 {
+  height:8em;
+  overflow-y: scroll;
+}
+.scroll-box-10 {
+  height:10em;
+  overflow-y: scroll;
+}
+.scroll-box-12 {
+  height:12em;
+  overflow-y: scroll;
+}
+.scroll-box-14 {
+  height:14em;
+  overflow-y: scroll;
+}
+.scroll-box-16 {
+  height:16em;
+  overflow-y: scroll;
+}
+.scroll-box-18 {
+  height:18em;
+  overflow-y: scroll;
+}
+.scroll-box-22 {
+  height:22em;
+  overflow-y: scroll;
+}
+.scroll-output {
+  height: 80%;
+  overflow-y: scroll;
+}
+```
+
+---
+class: inverse, middle, center 
+background-image: url(figs/fondo.jpg)
+background-size: cover
+background-position: top
+
+```{r, fig.align='center', out.width="25%", echo=FALSE}
+include_graphics("figs/aboutme.png")
+```
+
+### Blgo. Irwing S. Saldaña <br><span style= 'font-size:80%; font-weigth: light;'> Instructor</span>
+<span style= 'font-family: calibri; color: white'>,<br>
+Instituto de Ciencias Antonio Brack, Perú</span>
+
+.white[[Website](https://www.brackinstitute.com/)|[ResearchGate](https://www.researchgate.net/profile/Irwing-Saldana)|[Linkedin](https://www.linkedin.com/in/irssald/)|[R Latam Blog](https://rlatam.blog/) ]
+
+---
+class: inverse, middle, center , animated, slideInRight
+
+# Análisis Canónico
+
+[ Análisis Multivariados con restricciones o constreñidos ]
+
+---
+
+# Análisis Canónico
+
+```{r, fig.align='center', out.width="100%", echo=FALSE}
+include_graphics("figs/canonico.jpg")
+```
+
+---
+
+
+# Análisis Canónico
+
+Implica métodos en los que constreñimos o condicionamos una matriz de datos Y (normalmente de biodiversidad) con una matriz de datos X (normalmente de ambientales). Recordemos el análisis de correspondencia (CA):
+
+```{r, eval=FALSE}
+tm <- openxlsx::read.xlsx("bases/tabla_multivariada.xlsx")
+tm
+```
+
+.pull-left[
+.scroll-box-16[
+```{r, echo=FALSE}
+tm <- openxlsx::read.xlsx("bases/tabla_multivariada.xlsx")
+gt::gt(tm)
+```
+]
+]
+
+.pull-rigth[
+.scroll-box-16[
+```{r}
+library(ca)
+CA <-ca(tm[,2:6])
+summary(CA)
+```
+]
+]
+
+---
+
+# Análisis Canónico
+
+```{r, out.width='60%', fig.align='center', eval=FALSE}
+library(ca)
+CA <-ca(matriz_Y)
+factoextra::fviz_ca_biplot(CA)
+```
+
+```{r, out.width='60%', fig.align='center', echo=FALSE}
+library(ca)
+CA <-ca(tm[,2:6])
+factoextra::fviz_ca_biplot(CA)
+```
+
+---
+class: inverse, middle, center , animated, slideInRight
+
+# Análisis de Correspondencia Canónica (CCA)
+
+[ Incorporando una matriz X en el análisis de CA ]
+
+---
+
+# Análisis de Correspondencia Canónica (CCA)
+
+El CCA es la versión constreñida del CA.
+
+Se crea utilizando la función .purple[`cca()`]
+
+Estructura del código en R:
+
+```{r, eval=FALSE}
+# Modo solo matrices 
+CCA <- cca(matriz_X, matriz_Y)
+
+# Modo fórmula (mucho más versátil)
+CCA <- cca(matriz_Y ~ ., data= matriz_X)
+```
+
+---
+
+# Análisis de Correspondencia Canónica (CCA)
+
+```{r, eval=FALSE}
+CCA <- cca(matriz_Y ~ ., data= matriz_X)
+summary(CCA)
+```
+
+.scroll-box-18[
+```{r, echo=FALSE}
+library(tidyverse)
+matrix_Y <- tm[,2:6]
+matrix_X<-tm[,7:10] %>% mutate(Sedimento = factor(Sedimento))
+CCA <- cca(matrix_Y ~ ., data= matrix_X)
+summary(CCA)
+```
+]
