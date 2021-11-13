@@ -1360,26 +1360,27 @@ Dado que estos métodos utilizan regresiones lineales en segundo plano para pode
 library(vegan)
 data("varespec")
 data("varechem")
-*CCA_vare &lt;- cca(varespec ~ Al + K + Baresoil, data = varechem)
-CCA_vare
+*RDA_vare &lt;- rda(decostand(varespec, "hellinger") ~ Al + K + Baresoil, data = varechem)
+RDA_vare
 ```
 
 ```
-## Call: cca(formula = varespec ~ Al + K + Baresoil, data = varechem)
+## Call: rda(formula = decostand(varespec, "hellinger") ~ Al + K +
+## Baresoil, data = varechem)
 ## 
 ##               Inertia Proportion Rank
-## Total          2.0832     1.0000     
-## Constrained    0.6028     0.2894    3
-## Unconstrained  1.4804     0.7106   20
-## Inertia is scaled Chi-square 
+## Total          0.3647     1.0000     
+## Constrained    0.1319     0.3616    3
+## Unconstrained  0.2328     0.6384   20
+## Inertia is variance 
 ## 
 ## Eigenvalues for constrained axes:
-##   CCA1   CCA2   CCA3 
-## 0.3673 0.1546 0.0809 
+##    RDA1    RDA2    RDA3 
+## 0.10019 0.02541 0.00625 
 ## 
 ## Eigenvalues for unconstrained axes:
-##    CA1    CA2    CA3    CA4    CA5    CA6    CA7    CA8 
-## 0.3549 0.2374 0.1968 0.1599 0.1184 0.1083 0.0833 0.0534 
+##     PC1     PC2     PC3     PC4     PC5     PC6     PC7     PC8 
+## 0.08502 0.03623 0.02715 0.02268 0.01208 0.01067 0.00998 0.00701 
 ## (Showing 8 of 20 unconstrained eigenvalues)
 ```
 
@@ -1390,26 +1391,27 @@ CCA_vare
 library(vegan)
 data("varespec")
 data("varechem")
-*CCA_vare &lt;- cca(varespec ~ Al + P + K + Baresoil, data = varechem)
-CCA_vare
+*RDA_vare &lt;- rda(decostand(varespec, "hellinger") ~ Al + P + K + Baresoil, data = varechem)
+RDA_vare
 ```
 
 ```
-## Call: cca(formula = varespec ~ Al + P + K + Baresoil, data = varechem)
+## Call: rda(formula = decostand(varespec, "hellinger") ~ Al + P + K +
+## Baresoil, data = varechem)
 ## 
 ##               Inertia Proportion Rank
-## Total          2.0832     1.0000     
-## Constrained    0.7465     0.3583    4
-## Unconstrained  1.3367     0.6417   19
-## Inertia is scaled Chi-square 
+## Total          0.3647     1.0000     
+## Constrained    0.1494     0.4098    4
+## Unconstrained  0.2152     0.5902   19
+## Inertia is variance 
 ## 
 ## Eigenvalues for constrained axes:
-##   CCA1   CCA2   CCA3   CCA4 
-## 0.3686 0.1906 0.1233 0.0641 
+##    RDA1    RDA2    RDA3    RDA4 
+## 0.10067 0.02863 0.01501 0.00513 
 ## 
 ## Eigenvalues for unconstrained axes:
-##    CA1    CA2    CA3    CA4    CA5    CA6    CA7    CA8 
-## 0.3429 0.2200 0.1661 0.1536 0.1148 0.0889 0.0545 0.0471 
+##     PC1     PC2     PC3     PC4     PC5     PC6     PC7     PC8 
+## 0.08319 0.03445 0.02427 0.01639 0.01160 0.01047 0.00943 0.00639 
 ## (Showing 8 of 19 unconstrained eigenvalues)
 ```
 
@@ -1420,27 +1422,27 @@ CCA_vare
 library(vegan)
 data("varespec")
 data("varechem")
-*CCA_vare &lt;- cca(varespec ~ Al + P*(K + Baresoil), data = varechem)
-CCA_vare
+*RDA_vare &lt;- rda(decostand(varespec, "hellinger") ~ Al + P*(K + Baresoil), data = varechem)
+RDA_vare
 ```
 
 ```
-## Call: cca(formula = varespec ~ Al + P * (K + Baresoil), data =
-## varechem)
+## Call: rda(formula = decostand(varespec, "hellinger") ~ Al + P * (K +
+## Baresoil), data = varechem)
 ## 
 ##               Inertia Proportion Rank
-## Total           2.083      1.000     
-## Constrained     1.046      0.502    6
-## Unconstrained   1.038      0.498   17
-## Inertia is scaled Chi-square 
+## Total          0.3647     1.0000     
+## Constrained    0.1968     0.5395    6
+## Unconstrained  0.1679     0.4605   17
+## Inertia is variance 
 ## 
 ## Eigenvalues for constrained axes:
-##   CCA1   CCA2   CCA3   CCA4   CCA5   CCA6 
-## 0.3756 0.2342 0.1407 0.1323 0.1068 0.0561 
+##    RDA1    RDA2    RDA3    RDA4    RDA5    RDA6 
+## 0.10104 0.04470 0.01707 0.01509 0.01381 0.00505 
 ## 
 ## Eigenvalues for unconstrained axes:
-##     CA1     CA2     CA3     CA4     CA5     CA6     CA7     CA8 
-## 0.27577 0.15411 0.13536 0.11803 0.08887 0.05511 0.04919 0.03781 
+##     PC1     PC2     PC3     PC4     PC5     PC6     PC7     PC8 
+## 0.06484 0.02672 0.01664 0.01514 0.01038 0.00852 0.00660 0.00458 
 ## (Showing 8 of 17 unconstrained eigenvalues)
 ```
 
@@ -1465,13 +1467,13 @@ ordiR2step(Modelo_Nulo, Modelo_Full, trace=FALSE)
 
 
 ```r
-permustats(anova(CCA_vare)) |&gt; summary()
+permustats(anova(RDA_vare)) |&gt; summary()
 ```
 
 ```
 ## 
 ##       statistic    SES   mean lower median  upper Pr(perm)    
-## Model    2.8556 8.0404 1.0171       1.0050 1.3963    0.001 ***
+## Model    3.3201 7.6986 1.0337       0.9927 1.5882    0.001 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -1482,7 +1484,7 @@ permustats(anova(CCA_vare)) |&gt; summary()
 
 
 ```r
-permustats(anova(CCA_vare)) |&gt; densityplot()
+permustats(anova(RDA_vare)) |&gt; densityplot()
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-29-1.png" width="90%" /&gt;
@@ -1491,18 +1493,18 @@ permustats(anova(CCA_vare)) |&gt; densityplot()
 
 
 ```r
-permustats(anova(CCA_vare, by="axis")) |&gt; summary()
+permustats(anova(RDA_vare, by="axis")) |&gt; summary()
 ```
 
 ```
 ## 
 ##      statistic     SES    mean lower  median   upper Pr(perm)    
-## CCA1    6.1548  6.0046  2.3687        2.2647  3.5996    0.001 ***
-## CCA2    3.8372  3.6399  2.0162        1.9720  2.9024    0.002 ** 
-## CCA3    2.3049  0.8935  1.8265        1.7419  2.8322    0.170    
-## CCA4    2.1676  1.1296  1.6062        1.5528  2.4983    0.120    
-## CCA5    1.7491  0.7640  1.3566        1.2927  2.2570    0.181    
-## CCA6    0.9199 -0.2032  1.0186        0.9185  1.9145    0.498    
+## RDA1   10.2293  5.9564  3.1164        2.9010  5.3902    0.001 ***
+## RDA2    4.5257  2.4354  2.3981        2.2512  4.0340    0.026 *  
+## RDA3    1.7278 -0.3790  1.9945        1.8536  3.3135    0.588    
+## RDA4    1.5279 -0.3411  1.7589        1.6172  3.0974    0.565    
+## RDA5    1.3985 -0.0381  1.4227        1.3001  2.6939    0.436    
+## RDA6    0.5112 -0.8799  1.0024        0.8886  2.1184    0.840    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -1513,27 +1515,27 @@ permustats(anova(CCA_vare, by="axis")) |&gt; summary()
 
 
 ```r
-permustats(anova(CCA_vare, by="axis")) |&gt; densityplot()
+permustats(anova(RDA_vare, by="axis")) |&gt; densityplot()
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-31-1.png" width="90%" /&gt;
 
 ---
-
+ 
 
 ```r
-permustats(anova(CCA_vare, by="terms")) |&gt; summary()
+permustats(anova(RDA_vare, by="terms")) |&gt; summary()
 ```
 
 ```
 ## 
-##            statistic    SES   mean lower median  upper Pr(perm)    
-## Al            4.8856 9.0364 1.0176       0.9427 1.8376    0.001 ***
-## P             3.1116 4.5279 1.0528       0.9421 1.9537    0.002 ** 
-## K             2.5570 3.0213 1.0090       0.9676 1.9005    0.007 ** 
-## Baresoil      1.6766 1.5722 1.0027       0.9301 1.7942    0.076 .  
-## P:K           2.7602 4.1190 1.0144       0.9582 1.8582    0.001 ***
-## P:Baresoil    2.1425 2.4153 1.0029       0.9400 1.8778    0.025 *  
+##            statistic     SES    mean lower  median   upper Pr(perm)    
+## Al            7.5980 10.3327  1.0235        0.8457  2.2821    0.001 ***
+## P             3.6535  3.9092  1.0650        0.8692  2.3554    0.004 ** 
+## K             2.3019  2.3279  1.0094        0.9160  2.0225    0.026 *  
+## Baresoil      1.5761  0.8768  1.0137        0.8355  2.3487    0.144    
+## P:K           2.2824  2.1308  1.0153        0.8438  2.1936    0.046 *  
+## P:Baresoil    2.5084  2.6540  1.0007        0.8574  2.1265    0.023 *  
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -1544,7 +1546,7 @@ permustats(anova(CCA_vare, by="terms")) |&gt; summary()
 
 
 ```r
-permustats(anova(CCA_vare, by="terms")) |&gt; densityplot()
+permustats(anova(RDA_vare, by="terms")) |&gt; densityplot()
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-33-1.png" width="90%" /&gt;

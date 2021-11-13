@@ -472,8 +472,8 @@ Dado que estos métodos utilizan regresiones lineales en segundo plano para pode
 library(vegan)
 data("varespec")
 data("varechem")
-CCA_vare <- cca(varespec ~ Al + K + Baresoil, data = varechem) #<<
-CCA_vare
+RDA_vare <- rda(decostand(varespec, "hellinger") ~ Al + K + Baresoil, data = varechem) #<<
+RDA_vare
 ```
 
 ---
@@ -482,8 +482,8 @@ CCA_vare
 library(vegan)
 data("varespec")
 data("varechem")
-CCA_vare <- cca(varespec ~ Al + P + K + Baresoil, data = varechem) #<<
-CCA_vare
+RDA_vare <- rda(decostand(varespec, "hellinger") ~ Al + P + K + Baresoil, data = varechem) #<<
+RDA_vare
 ```
 
 ---
@@ -492,8 +492,8 @@ CCA_vare
 library(vegan)
 data("varespec")
 data("varechem")
-CCA_vare <- cca(varespec ~ Al + P*(K + Baresoil), data = varechem) #<<
-CCA_vare
+RDA_vare <- rda(decostand(varespec, "hellinger") ~ Al + P*(K + Baresoil), data = varechem) #<<
+RDA_vare
 ```
 
 ---
@@ -515,35 +515,35 @@ ordiR2step(Modelo_Nulo, Modelo_Full, trace=FALSE)
 ---
 
 ```{r}
-permustats(anova(CCA_vare)) |> summary()
+permustats(anova(RDA_vare)) |> summary()
 ```
 
 ---
 
 ```{r, out.width="90%"}
-permustats(anova(CCA_vare)) |> densityplot()
+permustats(anova(RDA_vare)) |> densityplot()
 ```
 
 ---
 
 ```{r}
-permustats(anova(CCA_vare, by="axis")) |> summary()
+permustats(anova(RDA_vare, by="axis")) |> summary()
 ```
 
 ---
 
 ```{r, out.width="90%"}
-permustats(anova(CCA_vare, by="axis")) |> densityplot()
+permustats(anova(RDA_vare, by="axis")) |> densityplot()
 ```
 
 ---
  
 ```{r}
-permustats(anova(CCA_vare, by="terms")) |> summary()
+permustats(anova(RDA_vare, by="terms")) |> summary()
 ```
 
 ---
 
 ```{r, out.width="90%"}
-permustats(anova(CCA_vare, by="terms")) |> densityplot()
+permustats(anova(RDA_vare, by="terms")) |> densityplot()
 ```
