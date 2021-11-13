@@ -97,6 +97,10 @@ style_mono_accent(base_color = "#5f00db",
   height:18em;
   overflow-y: scroll;
 }
+.scroll-box-19 {
+  height:19em;
+  overflow-y: scroll;
+}
 .scroll-box-22 {
   height:22em;
   overflow-y: scroll;
@@ -140,8 +144,7 @@ include_graphics("figs/canonico.jpg")
 
 ---
 
-
-# Análisis Canónico
+# Recordemos el Análisis de Correspondencia
 
 Implica métodos en los que constreñimos o condicionamos una matriz de datos Y (normalmente de biodiversidad) con una matriz de datos X (normalmente de ambientales). Recordemos el análisis de correspondencia (CA):
 
@@ -150,40 +153,34 @@ tm <- openxlsx::read.xlsx("bases/tabla_multivariada.xlsx")
 tm
 ```
 
-.pull-left[
-.scroll-box-16[
+.scroll-box-14[
 ```{r, echo=FALSE}
-tm <- openxlsx::read.xlsx("bases/tabla_multivariada.xlsx")
-gt::gt(tm)
+especies <- read.csv("bases/cca_spe.csv", row.names=1, sep=";")
+gt::gt(especies)
 ```
-]
-]
-
-.pull-rigth[
-.scroll-box-16[
-```{r}
-library(ca)
-CA <-ca(tm[,2:6])
-summary(CA)
-```
-]
 ]
 
 ---
 
-# Análisis Canónico
+# Recordemos el Análisis de Correspondencia
 
-```{r, out.width='60%', fig.align='center', eval=FALSE}
+Implica métodos en los que constreñimos o condicionamos una matriz de datos Y (normalmente de biodiversidad) con una matriz de datos X (normalmente de ambientales). Recordemos el análisis de correspondencia (CA):
+
+```{r, eval=FALSE}
 library(ca)
-CA <-ca(matriz_Y)
-factoextra::fviz_ca_biplot(CA)
+especies_log <- log1p(especies)
+CA <-ca(especies_log)
+summary(CA) #<<
 ```
 
-```{r, out.width='60%', fig.align='center', echo=FALSE}
+.scroll-box-12[
+```{r, echo=FALSE}
 library(ca)
-CA <-ca(tm[,2:6])
-factoextra::fviz_ca_biplot(CA)
+especies_log <- decostand(especies, "log")
+CA <-ca(especies_log)
+summary(CA) 
 ```
+]
 
 ---
 class: inverse, middle, center , animated, slideInRight
@@ -196,9 +193,15 @@ class: inverse, middle, center , animated, slideInRight
 
 # Análisis de Correspondencia Canónica (CCA)
 
+--
+
 El CCA es la versión constreñida del CA.
 
+--
+
 Se crea utilizando la función .purple[`cca()`]
+
+--
 
 Estructura del código en R:
 
@@ -210,21 +213,337 @@ CCA <- cca(matriz_X, matriz_Y)
 CCA <- cca(matriz_Y ~ ., data= matriz_X)
 ```
 
+--
+
+ - Utiliza distancias de **Chi cuadrado.**
+ - Recuerda que las _especies raras se ven sobreexpresadas_ (**logaritmizar** para reducir el peso de ellas).
+ - Sirve para **identificar la proporción de varianza** de una matriz de biodiversidad (matriz de conteos) que es **explicada** por una matriz de datos ambientales (matriz de mediciones).
+
 ---
 
 # Análisis de Correspondencia Canónica (CCA)
 
 ```{r, eval=FALSE}
-CCA <- cca(matriz_Y ~ ., data= matriz_X)
+ambiente <- read.csv("bases/cca_env.csv", row.names=1, sep=";")
+CCA <- cca(especies_log ~ ., data = ambiente)
 summary(CCA)
 ```
 
 .scroll-box-18[
 ```{r, echo=FALSE}
-library(tidyverse)
-matrix_Y <- tm[,2:6]
-matrix_X<-tm[,7:10] %>% mutate(Sedimento = factor(Sedimento))
-CCA <- cca(matrix_Y ~ ., data= matrix_X)
+ambiente <- read.csv("bases/cca_env.csv", row.names=1, sep=";")
+CCA <- cca(especies_log ~ ., data = ambiente)
 summary(CCA)
 ```
 ]
+
+---
+
+# Test de Permutaciones: modelo
+
+-  Necesario para validar si la varianza explicada por la matriz ambiental explica más de lo que podría explicar por azar.
+
+.scroll-box-18[
+```{r}
+# Probando la significancia del modelo CCA:
+anova.cca(CCA) #<<
+```
+]
+
+---
+
+# Test de Permutaciones: términos
+
+-  Necesario para validar si la varianza explicada por la matriz ambiental explica más de lo que podría explicar por azar.
+
+.scroll-box-18[
+```{r}
+# Probando la significancia de los término (variables ambientales):
+anova.cca(CCA, by="terms") #<<
+```
+]
+
+---
+
+# Test de Permutaciones: ejes canónicos
+
+-  Necesario para validar si la varianza explicada por la matriz ambiental explica más de lo que podría explicar por azar.
+
+.scroll-box-18[
+```{r}
+# Probando la significancia de los ejes CCA (CCA1 y CCA2 al menos deben ser significativos):
+anova.cca(CCA, by="axis") #<<
+```
+]
+
+---
+
+# Gráfico Final CCA
+
+```{r, eval=FALSE}
+library(ggvegan)
+autoplot(CCA)
+```
+```{r, fig.align='center', echo=FALSE, out.width="75%"}
+# Gráfico con Autoplot de ggvegan
+library(ggvegan)
+autoplot(CCA, geom="text")+
+  theme_bw()+
+  geom_hline(yintercept = 0, color='gray60', lty=2)+
+  geom_vline(xintercept = 0,color='gray60', lty=2)+
+  scale_color_manual(values = c("#ff0037", "#0062eb"))+
+  theme(legend.position = "none", aspect.ratio=2.5/7)
+
+```
+
+---
+class: inverse, middle, center , animated, slideInRight
+
+# Análisis de Redundancia (RDA)
+
+[ La extensión canónica del PCA ]
+
+---
+
+# Análisis de Redundancia (RDA)
+
+--
+
+El RDA es la versión constreñida del PCA.
+
+--
+
+Se crea utilizando la función .purple[`rda()`]
+
+--
+
+Estructura del código en R:
+
+```{r, eval=FALSE}
+# Modo solo matrices 
+RCA <- rca(matriz_X, matriz_Y)
+
+# Modo fórmula (mucho más versátil)
+RCA <- rca(matriz_Y ~ ., data= matriz_X)
+```
+
+--
+
+ - Utiliza distancias **Euclideanas.** Pero se puede utilizar la misma propiedad de las distancias de Hellinger o distancias Chord que en el PCA.
+ - Igual que el CCA sirve para **identificar la proporción de varianza** de una matriz de dependiente (matriz de conteos o "biodiversidad" pero transformada, o una matriz de mediciones) que es **explicada** por una matriz de datos independientes (matriz de mediciones).
+
+
+---
+
+# Tipos de Análisis de Redundancia (RDA)
+
+--
+
+- **RDA clásico (con distancias euclideanas)**
+
+  - Usa PCA como motor de análisis multivariado
+  - Trabaja con regresiones múltiples también
+
+--
+
+- **RDA basado en transformaciones (tb-RDA)**
+
+  - Usa PCA como motor de análisis multivariado
+  - Trabaja con regresiones múltiples también
+  
+--
+
+- **RDA basado en distancias (db-RDA)**
+
+  - Usa PCoA (MDS) como motor de análisis multivariado
+  - Trabaja con regresiones múltiples también
+  - Se requiere evitar eigenvalores negativos (aplicar raiz cuadrada a las distancias Bray Curtis para este fin)
+--
+
+.right[#### .red[...Veamos la estrategia de proyección del RDA]]
+
+---
+class: middle
+
+
+```{r, fig.align='center', out.width="70%", echo=FALSE}
+include_graphics("figs/RDA1.jpg")
+```
+
+--
+
+```{r, fig.align='center', out.width="70%", echo=FALSE}
+include_graphics("figs/RDA2.jpg")
+```
+
+
+---
+class: middle
+
+--
+
+```{r, fig.align='center', out.width="70%", echo=FALSE}
+include_graphics("figs/RDA3.jpg")
+```
+
+--
+
+```{r, fig.align='center', out.width="70%", echo=FALSE}
+include_graphics("figs/RDA4.jpg")
+```
+
+
+---
+class: middle
+
+--
+
+```{r, fig.align='center', out.width="70%", echo=FALSE}
+include_graphics("figs/RDA5.jpg")
+```
+
+---
+
+# Recomendaciones
+
+-  Piensa en el RDA como si fueras a realizar un PCA.
+
+- Cumple con los requerimientos del PCA, transforma las matrices si se requiere, o estandariza si es necesario.
+
+```{r, eval=FALSE}
+# Si se requiere escalar o no, se activa o desactiva este argumento
+rda(..., scale=TRUE)
+```
+
+
+- Si la matriz dependiente es de abundancias: aplica tb-RDA o db-RDA
+
+```{r, eval=FALSE}
+# RDA basado en transformaciones
+rda(..., scale=FALSE)
+
+# RDA basado en distancias
+dbrda(..., distance = "bray")
+```
+
+---
+
+# Escalas
+
+-   `scaling = 1` $\implies$ Se centra en sitios (filas), escala los scores de los sitios por $\lambda_i$
+-   `scaling = 2` $\implies$ Se centra en especies (columnas Y), escala los scores de las especies por $\lambda_i$
+-   `scaling = 3` $\implies$ Escalado simétrico, escala ambos scores por $\sqrt{\lambda_i}$
+-   `scaling = 0` $\implies$ scores crudos
+
+```{r scaling-example, results = "hide", eval=FALSE}
+# Observar scores individuales
+scores(RDA, choices = 1:2, display = "species", scaling = 3)
+```
+
+-   `scaling = 1` $\implies$ "sites"
+-   `scaling = 2` $\implies$ "species"
+-   `scaling = 3` $\implies$ "symmetric"
+-   `scaling = 0` $\implies$ "none"
+
+---
+class: inverse, middle, center , animated, slideInRight
+
+# Modelamiento de RDA 
+
+[ También aplicado al CCA ]
+
+---
+
+# Modelamiento con RDA - CCA
+
+Dado que estos métodos utilizan regresiones lineales en segundo plano para poder hacer el ajuste del modelo, las mismas recomendaciones que para un LM se deben aplicar aquí.
+
+- Identificar las variables importantes y solo incluirlas a ellas.
+
+- Si se conoce que la relación entre una variable y las especies tiene **comportamiento cuadrático o cúbico**, se puede incluir ello en la fórmula del modelo RDA.
+
+- Si se sabe que **dos variables interactúan** y que dicha interacción influencia a la presencia de especies, también se puede incluir ello en la fórmula del modelo RDA.
+
+- Procedimientos de **selección automática de variables** deben ser consideradas con cuidado.
+
+---
+
+```{r}
+library(vegan)
+data("varespec")
+data("varechem")
+CCA_vare <- cca(varespec ~ Al + K + Baresoil, data = varechem) #<<
+CCA_vare
+```
+
+---
+
+```{r}
+library(vegan)
+data("varespec")
+data("varechem")
+CCA_vare <- cca(varespec ~ Al + P + K + Baresoil, data = varechem) #<<
+CCA_vare
+```
+
+---
+
+```{r}
+library(vegan)
+data("varespec")
+data("varechem")
+CCA_vare <- cca(varespec ~ Al + P*(K + Baresoil), data = varechem) #<<
+CCA_vare
+```
+
+---
+
+# Enfoques automáticos <br>de selección de modelos
+
+- Define el mejor modelo con todas las posibles variables importantes (Modelo Full)
+
+- Utiliza el método de selección corregido para RDA-CCA (usando $R^2$ Ajustado)
+
+```{r, eval=FALSE}
+# Revisar r cuadrado ajustado pero solo de un modelo
+RsquareAdj(Modelo_Full)
+
+# Selección paso a paso ajustada por r cuadrado ajustado
+ordiR2step(Modelo_Nulo, Modelo_Full, trace=FALSE)
+```
+
+---
+
+```{r}
+permustats(anova(CCA_vare)) |> summary()
+```
+
+---
+
+```{r, out.width="90%"}
+permustats(anova(CCA_vare)) |> densityplot()
+```
+
+---
+
+```{r}
+permustats(anova(CCA_vare, by="axis")) |> summary()
+```
+
+---
+
+```{r, out.width="90%"}
+permustats(anova(CCA_vare, by="axis")) |> densityplot()
+```
+
+---
+ 
+```{r}
+permustats(anova(CCA_vare, by="terms")) |> summary()
+```
+
+---
+
+```{r, out.width="90%"}
+permustats(anova(CCA_vare, by="terms")) |> densityplot()
+```
