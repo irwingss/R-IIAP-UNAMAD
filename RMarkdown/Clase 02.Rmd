@@ -55,10 +55,13 @@ amb <- aravo$env %>% as_tibble() %>% select(-ZoogD, -PhysD, -Form)
 ## **1.1. Realicemos un CA para ver los resultados** 
 
 ```{r}
+
 library(ca)
 especies_log <- log1p(especies)
 CA <-ca(especies_log)
-summary(CA)```
+summary(CA)
+
+```
 
 # **2. Métodos de Distancias**
 
