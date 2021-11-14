@@ -426,6 +426,19 @@ rda(..., scale=FALSE)
 dbrda(..., distance = "bray")
 ```
 
+
+---
+
+# Recomendaciones
+
+- Recuerda que no toda la varianza de la matriz Y es explicada por la matriz X, así que busquemos valores altos de varianza constreñida.
+
+- Caso contrario, no es correcto hacer una análisis canónico, sino un no restringido, o con regresiones lineales (o generalizadas) múltiples.
+
+- No pueden haber igual o más variables explicativas que observaciones.
+
+
+
 ---
 
 # Escalas
@@ -444,6 +457,63 @@ scores(RDA, choices = 1:2, display = "species", scaling = 3)
 -   `scaling = 2` $\implies$ "species"
 -   `scaling = 3` $\implies$ "symmetric"
 -   `scaling = 0` $\implies$ "none"
+
+---
+
+.pull-left[
+# Sites <br>`scaling = 1`
+
+- Las distancias entre las observaciones son aproximadamente euclideanas. Objetos cercanos se asumen continene variables con similar valor.
+
+- La distancia en ángulos rectos entre las observaciones y las variables (X o Y) reflejan que están asociados a ellos.
+
+- Los ángulos entre las variables de la matriz Y no son interpretables.
+
+- El coseno de los ángulos entre los vectores de las variables de la matriz Y y X reflejan su nivel de correlación (e.g. cos(90*pi/180) = 0, cos(20*pi/180) =  0.94).
+]
+
+.pull-right[
+```{r, fig.align='center', echo=FALSE, out.width="90%"}
+include_graphics("figs/rda scaling 1.png")
+```
+]
+
+---
+
+.pull-left[
+# Species <br>`scaling = 2`
+
+- Las distancias entre las observaciones no son euclideanas.
+
+- La distancia en ángulos rectos entre las observaciones y las variables (X o Y) reflejan que están asociados a ellos.
+
+- El coseno de los ángulos entre todos los vectores (X o Y) reflejan su nivel de correlación (e.g. cos(90*pi/180) = 0, cos(20*pi/180) =  0.94).
+]
+
+.pull-right[
+```{r, fig.align='center', echo=FALSE, out.width="90%"}
+include_graphics("figs/rda scaling 2.png")
+```
+]
+
+---
+.pull-left[
+
+#### Species `scaling = 3`
+
+```{r, fig.align='center', echo=FALSE, out.width="80%"}
+include_graphics("figs/rda scaling 3.png")
+```
+]
+
+.pull-right[
+
+#### Species `scaling = 0`
+
+```{r, fig.align='center', echo=FALSE, out.width="80%"}
+include_graphics("figs/rda scaling 0.png")
+```
+]
 
 ---
 class: inverse, middle, center , animated, slideInRight

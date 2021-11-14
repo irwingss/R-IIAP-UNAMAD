@@ -1312,6 +1312,19 @@ rda(..., scale=FALSE)
 dbrda(..., distance = "bray")
 ```
 
+
+---
+
+# Recomendaciones
+
+- Recuerda que no toda la varianza de la matriz Y es explicada por la matriz X, así que busquemos valores altos de varianza constreñida.
+
+- Caso contrario, no es correcto hacer una análisis canónico, sino un no restringido, o con regresiones lineales (o generalizadas) múltiples.
+
+- No pueden haber igual o más variables explicativas que observaciones.
+
+
+
 ---
 
 # Escalas
@@ -1331,6 +1344,55 @@ scores(RDA, choices = 1:2, display = "species", scaling = 3)
 -   `scaling = 2` `\(\implies\)` "species"
 -   `scaling = 3` `\(\implies\)` "symmetric"
 -   `scaling = 0` `\(\implies\)` "none"
+
+---
+
+.pull-left[
+# Sites &lt;br&gt;`scaling = 1`
+
+- Las distancias entre las observaciones son aproximadamente euclideanas. Objetos cercanos se asumen continene variables con similar valor.
+
+- La distancia en ángulos rectos entre las observaciones y las variables (X o Y) reflejan que están asociados a ellos.
+
+- Los ángulos entre las variables de la matriz Y no son interpretables.
+
+- El coseno de los ángulos entre los vectores de las variables de la matriz Y y X reflejan su nivel de correlación (e.g. cos(90*pi/180) = 0, cos(20*pi/180) =  0.94).
+]
+
+.pull-right[
+&lt;img src="figs/rda scaling 1.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+# Species &lt;br&gt;`scaling = 2`
+
+- Las distancias entre las observaciones no son euclideanas.
+
+- La distancia en ángulos rectos entre las observaciones y las variables (X o Y) reflejan que están asociados a ellos.
+
+- El coseno de los ángulos entre todos los vectores (X o Y) reflejan su nivel de correlación (e.g. cos(90*pi/180) = 0, cos(20*pi/180) =  0.94).
+]
+
+.pull-right[
+&lt;img src="figs/rda scaling 2.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+.pull-left[
+
+#### Species `scaling = 3`
+
+&lt;img src="figs/rda scaling 3.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+
+#### Species `scaling = 0`
+
+&lt;img src="figs/rda scaling 0.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
 
 ---
 class: inverse, middle, center , animated, slideInRight
@@ -1487,7 +1549,7 @@ permustats(anova(RDA_vare)) |&gt; summary()
 permustats(anova(RDA_vare)) |&gt; densityplot()
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-29-1.png" width="90%" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-33-1.png" width="90%" /&gt;
 
 ---
 
@@ -1518,7 +1580,7 @@ permustats(anova(RDA_vare, by="axis")) |&gt; summary()
 permustats(anova(RDA_vare, by="axis")) |&gt; densityplot()
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-31-1.png" width="90%" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-35-1.png" width="90%" /&gt;
 
 ---
  
@@ -1549,7 +1611,7 @@ permustats(anova(RDA_vare, by="terms")) |&gt; summary()
 permustats(anova(RDA_vare, by="terms")) |&gt; densityplot()
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-33-1.png" width="90%" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-37-1.png" width="90%" /&gt;
 
 ---
 class: middle, center
