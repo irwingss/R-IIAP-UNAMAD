@@ -1,5 +1,5 @@
 ---
-title: "Análisis Multivariados: C1 - Métodos canónicos (dependientes)"
+title: "Análisis Multivariados: C2 - Métodos canónicos (dependientes)"
 author: "Blgo. Irwing S. Saldaña"
 output: html
 editor_options: 
@@ -76,79 +76,67 @@ Recuerda que, como todo método restringido o canónico, para realizar CCA o RDA
 # Transformar la base de datos a logaritmo para evitar 
 # exceso de peso a las especies raras generado por 
 # las distancias de Chi-Cuadrado
-head(ambiente)
-especies
-especies_log <- decostand(especies,"log")
+
+especies_log <- ...
 
 # Realizar el CA
-CA <-ca(especies_log)
-summary(CA)
+CA <-...
 
 # Gráfico rápido del CA
-factoextra::fviz_ca(CA, arrow = c(FALSE, TRUE))
+
+
 ```
 
 ## **1.2. Ejecución del CCA**
 
 ```{r}
 # Modelo CCA
-CCA <- cca(especies_log ~ ., data = ambiente)
-CCA
-RsquareAdj(CCA)
-summary(CCA)
+CCA <- ...
+
 
 # CCA Parsimonioso
-CCA_nulo <- update(CCA, .~1)
+CCA_nulo <- ...
+
 ordiR2step(CCA_nulo, scope=formula(CCA), R2scope=TRUE, trace=0)
 
 # Guardando el mejor modelo
-mejor_CCA <- cca(formula = especies_log ~ WaterContent + FallenTwigs +
-BareSand + CoverMoss, data = ambiente)
-mejor_CCA
-RsquareAdj(mejor_CCA)
+mejor_CCA <- ...
+
+
 ```
 
 ## **1.3. Significancia del CCA con Test de Permutaciones**
 
 ```{r}
 # Test de Permutaciones para significancia del modelo
-perm <- permustats(anova(mejor_CCA))
-summary(perm)
-anova.cca(mejor_CCA)
-densityplot(perm)
+perm <- ...
+
 
 # Test de Permutaciones para significancia de los ejes canónicos
-perm_axis <- permustats(anova(mejor_CCA, by="axis"))
-summary(perm_axis)
-anova.cca(mejor_CCA, by="axis")
-densityplot(perm_axis)
+perm_axis <- ...
 
 # Test de Permutaciones para significancia de las variables explicativas
 # de manera secuencial
-perm_terms <- permustats(anova(mejor_CCA, by="terms"))
-summary(perm_terms)
-anova.cca(mejor_CCA, by="terms")
-densityplot(perm_terms)
+perm_terms <- ...
 
 # Test de Permutaciones para significancia de las variables explicativas
 # de manera individual
-perm_terms <- permustats(anova(mejor_CCA, by="margin"))
-summary(perm_terms)
-anova.cca(mejor_CCA, by="margin")
-densityplot(perm_terms)
+perm_terms <- ...
+
 ```
 
 ## **1.4. Gráfico del CCA**
 
 ```{r}
-CCA$call
+
 variables <- c("WC", "BS", "CM", "LR", "FT", "CH")
 
-ggcca(CCA, obslab = TRUE, 
+ggcca(MODELO,  # Cambiar el modelo
+      obslab = TRUE, 
       obssize=3, 
       spesize=4,
       fsize=4, 
-      mflabs=variables,
+      mflabs=variables, # Solo cuando requieran cambiar etiquetas
       scaling=2,
       obsFonts = "sans",
       speFonts = "sans",
@@ -164,97 +152,96 @@ ggcca(CCA, obslab = TRUE,
 ## **2.1 Procedimiento para un RDA o tb-RDA**
 
 ```{r}
-# Practiquemos la creación de un RDA con las variables X:
+# Preprocesamiento
 loboAmb2 <- loboAmb[,5:12]
 colnames(loboAmb2) <- c("AMT","MDR","sdT","AP","cvP","NDVI","Elev","Tree")
-str(loboAmb2)
-
 
 loboGen2 <- loboGen[,-1] 
 
-RDA <- rda(decostand(loboGen2, "normalize") ~ ., data = loboAmb2, scale=FALSE)
+# Crea el RDA
+RDA <- ...
 
 # Ver resultados del RDA
-summary(RDA)
+
 
 # R2 y R2 ajustado del RDA 
-RsquareAdj(RDA)
+
 
 # Ejes canónicos y No Canónicos
-summary(eigenvals(RDA, model = "constrained"))
-summary(eigenvals(RDA, model = "unconstrained"))
+
+
 
 # Significancias con Test de Permutaciones
-anova.cca(RDA)
+
 
 # Verificar Colinearidad de las variables ambientales (X)
-vif.cca(RDA)
+
 
 # Gráfico de RDA con el método de graficación básico
 loboAmb$ecotype <- factor(loboAmb$ecotype)
 levels(loboAmb$ecotype) <- c("Western Forest","Boreal Forest","Arctic","High Arctic","British Columbia","Atlantic Forest")
-colores <- scales::hue_pal()(6)[loboAmb$ecotype]
 
-plot(RDA, type="n", scaling=3)
-points(RDA, display="species", pch=20, cex=0.7, col="gray32", scaling=3)  
-points(RDA, display="sites", pch=21, cex=1.3, col="gray32", 
-       scaling=3, bg=colores)
-text(RDA, scaling=3, display="bp", col="#0868ac", cex=1)
-legend("bottomright", legend=levels(loboAmb$ecotype), 
-       bty="n", col="gray32", pch=21, cex=1, 
-       pt.bg=scales::hue_pal()(6))
+# Definir el número de niveles y columna para coloreo
+colores <- scales::hue_pal()(6)[loboAmb$ecotype] 
+
+plot(RDA, type="n", scaling=3) # OBJETO RDA
+points(RDA, display="species", pch=20, cex=0.7,  # OBJETO RDA
+       col="gray32", scaling=3)  # Definir escala
+points(RDA, display="sites", pch=21, cex=1.3, # OBJETO RDA
+       col="gray32", scaling=3, bg=colores) # Definir escala
+text(RDA, # OBJETO RDA
+     scaling=3, # Definir escala
+     display="bp", col="#0868ac", cex=1)
+legend("bottomright", legend=levels(loboAmb$ecotype), # Columna coloreo 
+       bty="n", col="gray32", pch=21, cex=1,
+       pt.bg=scales::hue_pal()(6)) # Definir el número de niveles
 ```
 
 ## **2.2 Procedimiento para un tb-RDA**
 
 ```{r}
 # Pre procesamiento para distancias de bray Curtis
-hell_esp <- decostand(especies, "hellinger")
+hell_esp <- ...
 
 # Crea el objeto dbRDA
-tbRDA <- rda(hell_esp ~ . , data = ambiente)
+tbRDA <- ...
 
 # Ver resultados del dbRDA
-summary(tbRDA)
+
 
 # R2 y R2 ajustado del dbRDA 
-RsquareAdj(tbRDA)
+
 
 # Ejes canónicos y No Canónicos
-summary(eigenvals(tbRDA, model = "constrained"))
-summary(eigenvals(tbRDA, model = "unconstrained"))
+
 
 # dbRDA Parsimonioso
-tbRDA_nulo <- update(tbRDA, .~1)
-ordiR2step(tbRDA_nulo, scope=formula(tbRDA), R2scope=TRUE, trace=0)
+tbRDA_nulo <- ...
+
+ordiR2step(...)
 
 # Guardando el mejor modelo
-mejor_tbRDA <- rda(formula = hell_esp ~ WaterContent + FallenTwigs + 
-                     CoverMoss + BareSand, data = ambiente)
-summary(mejor_tbRDA)
+mejor_tbRDA <- ...
+
 
 # Significancias con Test de Permutaciones
-anova.cca(mejor_tbRDA)
-anova.cca(mejor_tbRDA, by="axis")
-anova.cca(mejor_tbRDA, by="terms")
-anova.cca(mejor_tbRDA, by="margin")
+
 
 # Verificar Colinearidad de las variables ambientales (X)
-vif.cca(mejor_tbRDA)
+
 
 # Triplot Exploratorio
-ordiplot(mejor_tbRDA, type="text")
+
 
 # Triplot final
-library(ggvegan)
 autoplot(mejor_tbRDA,
          geom = c('point','text'),
          display = c("wa", 'sp', 'bp'),
          arrows = F,
          scaling = 2, 
          axes=c(1,2))+
-  labs(x='dbRDA1 48.35%', y="dbRDA2 19.96%",
-       title="Porcentaje de Varianza Canónica = 72.65%")+
+  # labs(x='dbRDA1 48.35%', y="dbRDA2 19.96%",
+  #     title="Porcentaje de Varianza Canónica = 72.65%")+
   xlim(-1.5,1.2)+
   scale_color_manual(values=c("red","blue"))+
   theme_bw()+
@@ -267,40 +254,34 @@ autoplot(mejor_tbRDA,
 
 ```{r}
 # Pre procesamiento para distancias de bray Curtis
-log_esp <- log1p(especies)
+log_esp <- ...
 
 # Crea el objeto dbRDA
-dbRDA<- dbrda(log_esp ~ . , data = ambiente, distance = "bray")
+dbRDA<- ...
 
 # Ver resultados del dbRDA
-summary(dbRDA)
+
 
 # R2 y R2 ajustado del dbRDA 
-RsquareAdj(dbRDA)
 
 # Ejes canónicos y No Canónicos
-summary(eigenvals(dbRDA, model = "constrained"))
-summary(eigenvals(dbRDA, model = "unconstrained"))
+
+
 
 # dbRDA Parsimonioso
-dbRDA_nulo <- update(dbRDA, .~1)
-ordiR2step(dbRDA_nulo, scope=formula(dbRDA), R2scope=TRUE, trace=0)
+dbRDA_nulo <- ...
 
 # Guardando el mejor modelo
-mejor_dbRDA <- dbrda(formula = log_esp ~ WaterContent + FallenTwigs + BareSand + CoverMoss, data = ambiente, distance = "bray")
-summary(mejor_dbRDA)
+mejor_dbRDA <- ...
 
 # Significancias con Test de Permutaciones
-anova.cca(mejor_dbRDA)
-anova.cca(mejor_dbRDA, by="axis")
-anova.cca(mejor_dbRDA, by="terms")
-anova.cca(mejor_dbRDA, by="margin")
+
 
 # Verificar Colinearidad de las variables ambientales (X)
-vif.cca(mejor_dbRDA)
+
 
 # Triplot Exploratorio
-ordiplot(mejor_dbRDA, type="text")
+
 
 # Triplot final
 library(ggvegan)
@@ -310,8 +291,8 @@ autoplot(mejor_dbRDA,
          arrows = F,
          scaling = 2, 
          axes=c(1,2))+
-  labs(x='dbRDA1 69.69%', y="dbRDA2 25.08%",
-       title="Porcentaje de Varianza Canónica = 78.25%")+
+  #labs(x='dbRDA1 69.69%', y="dbRDA2 25.08%",
+  #     title="Porcentaje de Varianza Canónica = 78.25%")+
   xlim(-1.5,1.2)+
   scale_color_manual(values=c("red"))+
   theme_bw()+
@@ -349,44 +330,29 @@ data("mite.env")
 ```{r}
 # Realiza la transformación de Hellinger a la base de datos
 # mite para que esta cumpla con los requerimientos del RDA (tb-RDA)
-mite.hell <- decostand(mite, method = "hellinger")
+mite.hell <- ...
 
 # Realiza el RDA enfrentando la base de datos transformada
 # como matriz y, y todas las variables de mite.env como matriz x
 # define escalado scale=F, y el scaling=1
-tbRDA2 <- rda(mite.hell~., data=mite.env)
-summary(tbRDA2)
+tbRDA2 <- ...
 
-tbRDA2_nulo <- update(tbRDA2, .~1)
+tbRDA2_nulo <- ...
 
 # Encuentra el tb-RDA Parsimonioso
-ordiR2step(tbRDA2_nulo, 
-           scope= formula(tbRDA2), 
-           R2scope=TRUE, trace=0)
+
+
 
 # tb-RDA final
-tbRDA.final <- rda(formula = mite.hell ~ WatrCont + Shrub + Substrate +
-                     Topo, data = mite.env)
-summary(tbRDA.final)
+tbRDA.final <- ...
+
 
 # Verifica si el RDA y los ejes son significativos
-anova.cca(tbRDA.final)
-anova.cca(tbRDA.final, by="axis")
-anova.cca(tbRDA.final, by="terms")
-anova.cca(tbRDA.final, by="margin")
+
+
 
 # Gráfico con Autoplot de ggvegan
-autoplot(tbRDA.final,
-         geom = c('text','point'),
-         display = c('wa','sp', 'bp'),
-         arrows = F, 
-         scaling = 2, 
-         axes=c(1,2))+
-  #labs(x='RDA1 32.93%', y="RDA2 5.01%")+
-    theme_bw()+
-  geom_hline(yintercept = 0, color='gray60', lty=2)+
-  geom_vline(xintercept = 0,color='gray60', lty=2)+
-  scale_color_manual(values = c("#ff0037", "#0062eb"))+
-  theme(legend.position = "none")+
-  xlim(-1,1)
+
+
+
 ```

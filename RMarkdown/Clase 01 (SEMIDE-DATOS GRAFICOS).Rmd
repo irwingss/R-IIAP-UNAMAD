@@ -743,15 +743,8 @@ biplot(pcoa_2, spe_bc_log)
 pcoa_corr <- vegan::capscale(spe_bc_log ~ 1, distance="bray", add="lingoes")
 
 # Matrices de coordenadas PCoA (MDS) de especies y de sitios
-pcoa_corr$CA$u
-pcoa_corr$CA$v
-
-remotes::install_github("gavinsimpson/ggvegan")
-
-library(ggvegan)
-autoplot(pcoa_corr, geom=c("text"))+
-  theme_bw()
-
+pcoa_corr$CA$u # INFORMACION COORDENADAS DE LAS FILAS (SITIOS)
+pcoa_corr$CA$v # INFORMACION COORDANAS DE LAS COLUMNAS (ESPECIES)
 ```
 
 ## **6.2. Gráficoss PCoA (MDS)**
@@ -774,7 +767,7 @@ datosplot %>%
   theme_bw()
 
 # PCoA con agrupamiento
-grupos <- factor(spe_env$GROUP)
+grupos <- factor(spe_env$GROUP) # AQUI COLOCAR TUS AGRUPAMIENTOS
 datosplot <- pcoa$vectors %>% as.data.frame()
 
 datosplot %>% 
@@ -827,7 +820,12 @@ ggplot()+
 # Generemos el screeplot con los resultados del NMDS hasta 10 dimensiones
 library(goeveg)
 
+spe_bc_log
+range(spe_bc_log)
 
+dimcheckMDS(as.matrix(spe_bc_log), k=10, distance="bray")
+abline(a=0.10, b=0)
+abline(a=0.05, b=0)
 ```
 
 ## **7.2. Ejecutar el NMDS**
@@ -835,21 +833,24 @@ library(goeveg)
 ```{r}
 # La forma recomendada de ejecutar NMDS (Minchin 1987): 
 # tomar un primer NMDS como punto de inicio del NMDS final
-set.seed(123)
-prueba <- ...
+library(vegan)
 
 set.seed(123)
-nmds <- ...
+prueba <- metaMDS(spe_bc_log, distance="bray", k=5, trymax=100)
+prueba$stress
+
+set.seed(123)
+nmds <- metaMDS(spe_bc_log, distance="bray", k=5, trymax=100,
+                previous.best=prueba)
 
 # Estrés del NMDS
 #      valores   < 0.1             ajuste justo
 #      valores   < 0.1 y > 0.05    buen ajuste
 #      valores   =< 0.05           ajuste ideal 
-
+nmds$stress
 
 # Generar el gráfico de estrés (Diagrama de Shepard)
-
-
+stressplot(nmds)
 ```
 
 ## **7.3. Gráfico Final de NMDS**
@@ -870,7 +871,7 @@ grupos_kmeans_NMDS <- function(DF, objeto_nmds, k = 2){
 }
 
 # Usemos grupos_kmeans_NMDS()
-
+grupos_kmeans_NMDS(spe_bc_log, nmds, k=4)
 
 # Gráfico Final con ggplot2
 ggplot() + 
