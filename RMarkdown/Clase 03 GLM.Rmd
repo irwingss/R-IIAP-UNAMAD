@@ -1,0 +1,295 @@
+---
+title: "Modelamiento Avanzado: GLM y GLMM"
+Subtitle: "Ciencia de Datos en R aplicada a la Conservación de Fauna Silvestre"
+Author: "Blgo. Irwing S. Saldaña"
+output: html_document
+editor_options:
+  chunk_output_type: console
+---
+
+Instalar librerías nuevas
+
+```{r eval=FALSE}
+devtools::install_github("strengejacke/ggeffects")
+```
+
+Librerías a usar
+
+```{r warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+# **1. Regresión Logística (Bernoulli)**
+
+Se desea evaluar el efecto de un tratamiento en el peso de 50 pollitos. Se tomaron dos medidas de cada pollito, una antes del tratamiento (pre) y otra después (post).
+
+## **1.1. Base de datos**
+```{r}
+# Cargando el excel pez.xlsx
+pez <- openxlsx::read.xlsx("slide3/bases/pez.xlsx")
+str(pez)
+pez$poblacion <- factor(pez$poblacion)
+pez$sexo <-  factor(pez$sexo)
+pez$tactica <- factor(pez$tactica,  labels = c("fem"="Hembra",
+                                       "sneak"="Furtivo",
+                                       "terr"="Territorial"))
+```
+
+## **1.2. Creando el modelo inicial (FULL)**
+```{r}
+# Modelo Full
+modpez <- glm(punto_rojo ~ longitud + tactica + peso + sexo, data = pez, 
+              family = binomial(link = "logit"))
+summary(modpez)
+```
+
+## **1.3. Stepwise Regression para la selección de modelos**
+```{r}
+# Selección Stepwise 
+MASS::stepAIC(modpez)
+modpez2 <- glm(punto_rojo ~ longitud + tactica, data = pez, family = binomial(link = "logit"))
+
+# Crear modelo con interacciones
+modpez3 <- glm(punto_rojo ~ longitud*tactica, data = pez, family = binomial(link = "logit"))
+
+# Commparar modelos
+anova(modpez2, modpez3, test = "LRT")
+```
+
+## **1.4. Calidad del modelo**
+```{r}
+# Cálculo del Pseudo R2
+performance::r2(modpez3)
+
+# Verificar la colinearidad de las variavles 
+# (no necesario si hay interacción)
+performance::check_collinearity(modpez3)
+
+# Significancia del modelo
+modpez3_nulo <- update(modpez3, .~1)
+anova(modpez3, modpez3_nulo, test="LRT")
+```
+
+## **1.5. Obteniendo e interpretando los resultados**
+```{r}
+# Interpretación de coeficientes del modelo Logístico (Bernoulli)
+summary(modpez3)
+exp(coef(modpez3))
+broom.mixed::tidy(modpez3, exponentiate=TRUE)
+```
+
+## **1.6. Gráfico Final**
+```{r}
+# Gráfico semi-automático con sjPlot
+library(sjPlot)
+
+plot_model(modpez3, type="pred", terms = c("longitud"), show.data = TRUE)+
+  aes(color="red", fill="red")+
+  theme_bw()
+
+plot_model(modpez3, type="pred", terms = c("tactica")) + 
+  theme_bw()
+
+plot_model(modpez3, type="int", show.data = T, colors = "Set2")+
+  theme_bw()
+
+plot_model(modpez3, type="int", show.data = T, 
+           colors = c("cyan4","darkorange","purple"), jitter=c(0,0.05))+
+  theme_bw()
+```
+
+# **2. Regresión Logística (Binomial)**
+
+## **2.1. Base de datos**
+```{r}
+# Cargando el excel zorrito.xlsx
+zorrito <- openxlsx::read.xlsx("slide3/bases/zorrito.xlsx")
+str(zorrito)
+```
+
+## **2.2. Creando los modelos: sin y con interacción**
+```{r}
+# Creando los modelos
+model1 <- glm(cri_int ~ genAD922 + gen208S2, data=zorrito, 
+              family=binomial(link = "logit"), weights = intentos)
+
+model2 <- glm(cri_int ~ genAD922 * gen208S2, data=zorrito, 
+              family=binomial(link = "logit"), weights = intentos)
+# Commparar modelos
+anova(model1, model2, test = "LRT")
+```
+
+## **2.3. Calidad del modelo**
+```{r}
+# Cálculo del Pseudo R2 para modelos logisticos Binomiales
+ R2logit<- function(y,model){
+    R2<- 1-(model$deviance/model$null.deviance)
+    return(R2)
+ }
+
+R2logit(cri_int, model1)
+
+# Verificar la colinearidad de las variavles
+performance::check_collinearity(model1)
+
+# Significancia del modelo
+model1_nulo <- update(model1, .~1)
+anova(model1, model1_nulo, test="LRT")
+```
+
+## **2.4. Obteniendo e interpretando los resultados**
+```{r}
+# Generemos el resumen y veamos los coeficientes
+summary(model1)
+broom.mixed::tidy(model1, exponentiate=TRUE)
+exp(coef(model1))
+```
+
+## **2.5. Interpretación con el Gráfico Final**
+```{r}
+# Gráfico semi-automático con sjPlot
+library(sjPlot)
+
+plot_model(model1, show.values = TRUE, show.p = TRUE, vline.color = "gray70") + 
+  theme_bw()
+
+plot_model(model1, type="pred", show.data = TRUE, terms = c("gen208S2")) + 
+  theme_bw()
+
+plot_model(model1, type="pred", show.data = TRUE, terms = c("genAD922")) + 
+  theme_bw()
+
+plot_model(model1, type="pred", show.data = TRUE, 
+           terms = c("gen208S2"), dot.alpha=0.4, colors="purple") + 
+  theme_bw()+
+  aes(color="", fill="")+
+  theme(legend.position="none")+
+  labs(y="Probabilidad", x="Gen 208S2",
+       title= "Expresión del gen 208S2",
+         subtitle=expression(paste("en poblaciones de Ecuador y Perú de Zorro de Sechura ", italic("Lycalopex sechurae"))))
+
+```
+
+# **3. Regresión de Poisson**
+
+## **3.1. Cargando la base de datos**
+
+```{r}
+# Cargando el excel aves.xlsx
+aves <- openxlsx::read.xlsx("slide3/bases/aves.xlsx")
+str(aves)
+```
+  
+## **3.2. Generando la regresión de Poisson inicial**
+```{r}
+# Generando el modelo inicial
+glm.aves <- glm(r_total ~ temp_pa + nieve + bosque + elev, data=aves, 
+                family=poisson(link = "log"))
+```
+
+## **3.3. Selección del mejor modelo**
+```{r}
+# Stepwise regressión: usando el AIC para la selección
+MASS::stepAIC(glm.aves)
+
+glm.aves2 <- glm(r_total ~ temp_pa + nieve, data=aves, family=poisson(link = "log"))
+
+glm.aves3 <- glm(r_total ~ temp_pa * nieve, data=aves, family=poisson(link = "log"))
+
+# Comparación de modelos
+AIC(glm.aves, glm.aves2, glm.aves3) %>% arrange(AIC)
+anova(glm.aves, glm.aves2, test="LRT")
+anova(glm.aves2, glm.aves3, test="LRT")
+
+# Vista previa de los resultados
+summary(glm.aves3)
+```
+
+## **3.4. Validando el mejor modelo Poisson**
+```{r}
+# Pseudo R2 de CoxSnell
+performance::r2(glm.aves3)
+
+# Chequeo de la colinearidad de las variables
+performance::check_collinearity(glm.aves3)
+
+# Chequeo de presencia de outliers
+performance::check_outliers(glm.aves3)
+
+# Chequeo de cero inflados
+performance::check_zeroinflation(glm.aves3)
+
+# Chequeo de Sobredispersión
+library(performance)
+performance::check_overdispersion(glm.aves3)
+```
+
+## **3.5. Interpretación del modelo**
+```{r}
+# Veamos el resumen
+summary(glm.aves3)
+
+# Obtener los cocientes de tasas de incidencia (Incidence Rate Ratios, IRR)
+# Es decir, simplemente, los coeficientes del modelo de Poisson
+coef(glm.aves3)
+
+# Interpretando en porcentajes de incremento o disminución de el promedio esperado
+exp(coef(glm.aves3))
+
+(1.0304848 - 1) * 100  # por cada unidad de Temp_pa, el E(Y) incrementa en 3.048%
+(1 - 0.9881942) * 100  # por cada unidad de nieve, el E(Y) disminuye en 1.18%
+
+# Interpretando la interacción
+(1.0007779 - 1) *100  # el efecto de Temp_pa aumenta en 0.07779% por cada unidad 
+               # de incremento de la variable Nieve. Al contrario también:
+               # 
+               # el efecto de Nieve aumenta en 0.0007% por cada unidad
+               # de incremento de la variable Temp_pa.
+
+# Interpretando algunas situaciones en concreto
+coef(glm.aves3)
+
+predict(glm.aves3, data.frame(temp_pa=10, nieve=0), type="response")
+exp(1.2584592358 + 10*0.0300293590  + 0) # 10°C y no nieve
+
+predict(glm.aves3, data.frame(temp_pa=2.4, nieve=234), type="response")
+exp(1.2584592358 + 2.4*0.0300293590  + 234*-0.0118760386 + 0.0007775615*2.4*234) # 2.4°C y 234 nieve
+
+predict(glm.aves3, data.frame(temp_pa=25, nieve=0), type="response")
+exp(1.2584592358 + 25*0.0300293590  + 0 + 0) # 10°C y no nieve
+```
+
+## **3.6 Gráficos finales del modelo**
+```{r}
+# IRR Plot
+plot_model(glm.aves3, show.values = TRUE, show.p = TRUE, 
+           vline.color = "gray70", digits = 4) + 
+  theme_bw()+
+  labs(title="", y="Cocientes de Tasas de Incidencia (IRR)")+
+  scale_x_discrete(labels = c("temp_pa"="Temperatura \nPromedio \nAnual",
+                              "nieve"="Nieve", 
+                              "temp_pa:nieve"="Interacción \nTemp:Nieve"))+
+  scale_y_continuous(limits = c(0.95,1.07), breaks = round(seq(0.95,1.08, length=7),2))
+
+# Gráfico de efectos de Nieve sobre la riqueza total
+plot_model(glm.aves3, type="pred", show.data = T, terms = c("nieve"), show.legend = F,
+           colors = "#5f00db")+aes(color="", fill="")+ 
+  theme_bw()
+
+# Gráfico de efectos de Temperatura Promedio Anual sobre la riqueza total
+plot_model(glm.aves3, type="pred", show.data = T, terms = c("temp_pa"), show.legend = F,
+           colors = "#5f00db")+aes(color="", fill="")+ 
+  theme_bw()
+```
+
+# **4. Regresión Binomial Negativa**
+
+```{r}
+# Generar el mejor modelo Poisson utilizando la familia Binomial Negativa
+# Si el modelo no necesita lidiar con sobredispersión aparecerá una advertencia
+glm.aves5 <- MASS::glm.nb(r_total ~ temp_pa * nieve, data=aves, link = "log")
+summary(glm.aves5)
+
+coef(glm.aves5) # Aquí no varía nada, pero si hubiera sobredispersión, sí varían los
+coef(glm.aves3) # coeficientes y el error estándar
+```

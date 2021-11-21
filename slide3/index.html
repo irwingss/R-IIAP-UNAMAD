@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Análisis Estadístico Lineal Avanzado en R - 3</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Irwing S. Saldaña" />
+    <meta name="author" content="Departamento de Ecoinformática y Biogeografía" />
+    <meta name="author" content="Instituto de Ciencias Antonio Brack" />
+    <meta name="date" content="2021-01-01" />
+    <script src="assets/header-attrs/header-attrs.js"></script>
+    <link href="assets/tile-view/tile-view.css" rel="stylesheet" />
+    <script src="assets/tile-view/tile-view.js"></script>
+    <script src="assets/xaringanExtra_fit-screen/fit-screen.js"></script>
+    <script src="assets/clipboard/clipboard.min.js"></script>
+    <link href="assets/xaringanExtra-clipboard/xaringanExtra-clipboard.css" rel="stylesheet" />
+    <script src="assets/xaringanExtra-clipboard/xaringanExtra-clipboard.js"></script>
+    <script>window.xaringanExtraClipboard(null, {"button":"Copy Code","success":"Copied!","error":"Press Ctrl+C to Copy"})</script>
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"xe413be452d5402ebb2a84a0acc79959","expires":1}</script>
+    <script src="assets/himalaya/himalaya.js"></script>
+    <script src="assets/js-cookie/js.cookie.js"></script>
+    <link href="assets/editable/editable.css" rel="stylesheet" />
+    <script src="assets/editable/editable.js"></script>
+    <script src="assets/fabric/fabric.min.js"></script>
+    <link href="assets/xaringanExtra-scribble/scribble.css" rel="stylesheet" />
+    <script src="assets/xaringanExtra-scribble/scribble.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', function() { window.xeScribble = new Scribble({"pen_color":["#FF0000"],"pen_size":3,"eraser_size":30,"palette":[]}) })</script>
+    <link href="assets/xaringanExtra-extra-styles/xaringanExtra-extra-styles.css" rel="stylesheet" />
+    <link href="assets/countdown/countdown.css" rel="stylesheet" />
+    <script src="assets/countdown/countdown.js"></script>
+    <script src="assets/kePrint/kePrint.js"></script>
+    <link href="assets/lightable/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+class: title-slide, middle, center
+
+# &lt;span style = 'font-size: 110%;color:#5f00db;'&gt;Análisis Estadístico Lineal Avanzado en R&lt;/span&gt;
+## &lt;span style = 'font-size: 75%;color:#212121;'&gt;Curso Colaborativo IIAP - UNAMAD&lt;/span&gt;
+### &lt;span style = 'font-size: 85%;color:#212121;'&gt;Irwing S. Saldaña&lt;/span&gt;
+### &lt;span style = 'font-size: 80%; color:#919191; font-weight:lighter;'&gt;[Instituto de Ciencias Antonio Brack](https://www.brackinstitute.com/)&lt;br&gt;Departamento de Ecoinformática y Biogeografía&lt;br&gt;Perú, 2021&lt;/span&gt;
+
+
+
+&lt;style type="text/css"&gt;
+/* Footnote */
+.remark-slide-content:after {
+    content: "Blgo. Irwing S. Saldaña | Instituto de Ciencias Antonio Brack, Perú";
+    opacity: 0.9;
+    position: absolute;
+    text-align: left;
+    height: 26px;
+    font-size: 12pt;
+    left: 120px;
+    bottom: 18px;
+    font-weight: normal;
+    width: 1200px;
+}
+
+.scroll-box-8 {
+  height:8em;
+  overflow-y: scroll;
+}
+.scroll-box-10 {
+  height:10em;
+  overflow-y: scroll;
+}
+.scroll-box-12 {
+  height:12em;
+  overflow-y: scroll;
+}
+.scroll-box-14 {
+  height:14em;
+  overflow-y: scroll;
+}
+.scroll-box-16 {
+  height:16em;
+  overflow-y: scroll;
+}
+.scroll-box-18 {
+  height:18em;
+  overflow-y: scroll;
+}
+.scroll-box-19 {
+  height:19em;
+  overflow-y: scroll;
+}
+.scroll-box-22 {
+  height:22em;
+  overflow-y: scroll;
+}
+.scroll-output {
+  height: 80%;
+  overflow-y: scroll;
+}
+.pull-code {
+    color: #777;
+    width: 40%;
+    height: 92%;
+    float: left;
+}
+.pull-plot {
+    width: 59%;
+    float: right;
+    padding-left: 1%;
+}
+.remark-inline-code {
+    background: #e7e8e2;
+    border-radius: 3px;
+    padding: 4px;
+}
+.blockquote {
+  border-left: solid 5px lightgray;
+  padding-left: 1em;
+}
+
+&lt;/style&gt;
+
+---
+class: inverse, middle, center 
+background-image: url(figs/fondo.jpg)
+background-size: cover
+background-position: top
+
+&lt;img src="figs/aboutme.png" width="25%" style="display: block; margin: auto;" /&gt;
+
+### Blgo. Irwing S. Saldaña &lt;br&gt;&lt;span style= 'font-size:80%; font-weigth: light;'&gt; Instructor&lt;/span&gt;
+&lt;span style= 'font-family: calibri; color: white'&gt;Dpto. de Ecoinformática y Biogeografía,&lt;br&gt;
+Instituto de Ciencias Antonio Brack, Perú&lt;/span&gt;
+
+.white[[Website](https://www.brackinstitute.com/)|[ ResearchGate ](https://www.researchgate.net/profile/Irwing-Saldana)|[ Linkedin ](https://www.linkedin.com/in/irssald/)|[ R Latam Blog ](https://rlatam.blog/)]|[ Github ](https://github.com/irwingss)
+
+---
+class: inverse, middle, right , animated, slideInRight
+background-color: black
+name: GLM
+
+# .white[George Box]
+.white[ "...en esencia , todos los modelos están equivocados, pero algunos son útiles." ]
+
+---
+class: inverse, middle, right , animated, slideInRight
+background-color: black
+name: GLM
+
+# .white[ Principio de Parsimonia ]
+.white[ "En igualdad de condiciones, la explicación más sencilla suele ser la correcta" ]
+
+---
+class: inverse, middle, center , animated, slideInRight
+name: GLM
+
+# Introducción a los&lt;br&gt;Modelos Lineales de Efectos Mixtos (LMM)
+[ Ajustando temas de dependencia en los modelos lineales ]
+
+---
+
+# Homocedasticidad en los modelos lineales
+
+Cuando hay **homocedasticidad**, la varianza de la variable respuesta (Y) es constante a lo largo de la población: no depende del valor de X. 
+
+.pull-left[
+&lt;img src="index_files/figure-html/unnamed-chunk-3-1.png" width="4351.2" /&gt;
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-4-1.png" width="4351.2" /&gt;
+]
+
+Lo opuesto es **Hetercedasticidad**, y ocurre comunmente cuando la data no es independiente, evidenciando un efecto de .red[**agrupamiento**] en la colecta de la data.
+
+---
+class: center, middle
+
+## Enfoques de análisis
+
+--
+
+&lt;img src="figs/enfoquesdeanalisis.jpg" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Nomenclatura de Efectos Mixtos
+
+Se llaman así debido a que involucran dos tipos de variables en el componente sistemático de las fórmulas:
+
+#### Efectos fijos: 
+
+- Es una variable categórica o numérica.
+- Variables de las cuales estamos interesados en obtener conclusiones.
+    - Si es categórica, realiza mediciones en todos los posibles niveles que esa variable pueda tener según mi estudio.
+    - Si es un factor, estamos interesados en obtener información sobre todos los niveles ( e.g ., tratamientos) para los que se recopilaron los datos.
+
+#### Efectos aleatorios: 
+- Es una variable categórica (variables de agrupamiento).
+- Variables de las cuales NO estamos interesados en obtener conclusiones, pero que generan variabilidad.
+
+---
+
+# Topología de modelos `lmer()` en R
+
+#### Modelos clásicos de solo efectos fijos (LM): 
+- En los modelos lineales clásicos `\(y = \beta_0 + \sum(\beta_ix_i)\)` se considera a `\(\beta_0\)` y `\(\beta_i\)` como efectos fijos.
+      
+
+```r
+# Ejemplo en R con dos variables explicativas (Efectos fijos)
+*lm(Var_respuesta ~ Efec_fijo + Efec_fijo, data=DF)
+```
+ 
+#### Modelos con efectos mixtos (LMM):
+- Son variables que generan variabilidad en la varianza del modelo por el efecto de procesos de agrupamiento, anidamiento o cruzamiento en la toma de datos.
+      - En el modelo se incluyen como  `\(y = \beta_0 + \sum(\beta_ix_i) + Z_u\)`
+      
+
+```r
+# Ejemplo en R con dos variables explicativas (Ambos tipos de efectos)
+*lm(Var_respuesta ~ Efec_fijo + (1|Efec_Aleatorio), data=DF)
+```
+
+---
+class: center, middle
+
+## Modelos Lineales de Efectos Mixtos 
+
+--
+&lt;img src="figs/random.jpg" width="100%" style="display: block; margin: auto;" /&gt;
+[Fuent: rinterceptyslope.jpg](https://peerj.com/articles/4794/)
+
+---
+
+.pull-code[
+
+### Modelo LMM con Interceptos Aleatorios
+
+
+```r
+lmer(y ~ x + (1|v.aleatoria), data=DF)
+```
+
+- Se permite que el intercepto varíe para cada grupo.
+
+- Se asume que la variable explicativa tiene la misma tendencia de efecto para cada grupo, pero el promedio esperado difiere según la observación pertenezca a uno u otro grupo. 
+
+`$$y=\beta_0 + v_0 + \beta_1x_1 + \epsilon$$`
+
+]
+
+.pull-plot[
+&lt;img src="figs/rintercept.jpg" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-code[
+
+### Modelo LMM con Interceptos y Pendientes Aleatorias
+
+
+```r
+lmer(y ~ x + (x|v.aleatoria), data=DF)
+```
+
+- Se usa cuando se conoce que la variable explicativa tiene efectos diferentes en los diferentes grupos evaluados.
+
+- Esto genera que cada uno tenga una pendiente diferente.
+
+`$$y=\beta_0 + v_0 + (\beta_1 + v_1)x_1 + \epsilon$$`
+
+]
+
+.pull-plot[
+&lt;img src="figs/rinterceptyslope.jpg" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Desarrollemos la práctica
+
+<div class="countdown" id="timer_6199be08" style="right:0;bottom:0;left:0;margin:12%;padding:100px;font-size:6em;" data-warnwhen="30">
+<code class="countdown-time"><span class="countdown-digits minutes">60</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+
+---
+class: inverse, middle, center , animated, slideInRight
+name: GLM
+
+# Introducción a los&lt;br&gt;Modelos Lineales Generalizados (GLM)
+[ Expandiendo los límites de un modelo lineal ]
+
+---
+
+# Modelos Generalizados Lineales
+
+Recordemos, en los modelos lineales **LM** asumimos que:
+
+--
+$$ Y|(X_1 = x_1,...,X_p = x_p) \sim N(\beta_0+\beta_1x_1+...+\beta_px_p, \sigma^2) $$
+--
+Por lo tanto
+`$$\mathbb{E}[Y|X_1 = x_1,...,X_p = x_p] = \beta_0+\beta_1x_1+...+\beta_px_p, \sigma^2=\eta.$$`
+- La condición necesaria para satisfacer que el error sea normal es que `\(Y\)` sea continua.
+
+--
+&lt;br&gt;
+
+**Los GLM buscan ampliar las limitantes de los LM para incorporar análisis variables respuesta principalmente discretas (binarias o conteos).**
+
+---
+
+# Definición Matemática de un GLM
+
+Para definir un **GLM** necesitamos dos componentes 
+
+--
+
+- **Componente respuesta `\(Y\)` (variable respuesta, dependiente):**
+Las observaciones de y son independientes y provienen de una familia de dispersión exponencial (FDE)
+`$$Y|(X_1 = x_1,...,X_p = x_p) \sim FED(\mu, \phi)$$`
+
+&lt;br&gt;
+
+--
+
+- **Componente sistemático `\(\eta\)` (variable(s) explicativa(s), independiente(s)):**
+Es la parte de la ecuación definida por las variables explicativas, los coeficientes, la pendiente y el error. Sigue siendo un componente lineal.
+`$$\eta=\beta_0+\beta_1x_1+...+\beta_px_p + \epsilon$$`
+
+--
+
+Por tanto, el modelo GLM se define como función de la variable y predicha `\(g(\mu)\)`
+`$$g(\mu)=\eta=\beta_0+\beta_1x_1+...+\beta_px_p + \epsilon$$`
+
+---
+
+#Función de enlace
+La función `\(g(\mu)\)` es conocida como **función de enlace .orange[(link function)]**. Esta  es reversible, por lo que podemos transformar los coeficientes resultantes para calcular el promedio de calculado para `\(Y\)` como `\(g^{-1}(\eta)=\mu\)`
+
+&lt;table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;'&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;color: white !important;background-color: #5f00db !important;"&gt; Familia &lt;/th&gt;
+   &lt;th style="text-align:left;color: white !important;background-color: #5f00db !important;"&gt; Función de enlace &lt;/th&gt;
+   &lt;th style="text-align:left;color: white !important;background-color: #5f00db !important;"&gt; Función en R &lt;/th&gt;
+   &lt;th style="text-align:left;color: white !important;background-color: #5f00db !important;"&gt; Argumento family/link &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Gausiana &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Identity &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; glm() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; gaussian(link='identity') &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Binomial &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Logit, Probit, cloglog &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; glm() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; binomial(link='logit') &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Poisson &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Log, identity, sqrt &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; glm() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; poisson(link='log') &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Gamma &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Inverse, identity, Log &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; glm() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Gamma(link='inverse') &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Inversa Gausiana &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Inverse, identity, Log &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; glm() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; inverse.gaussian(link = '1/mu^2') &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Quasibinomial &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Logit, Probit, cloglog &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; glm() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; quasibinomial(link = 'logit') &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Quasipoisson &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Log, identity, sqrt &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; glm() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; quasipoissonl(link = 'log') &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Binomial Negativa &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Log, identity, sqrt &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; glm.nb() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; link = 'log' &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+&lt;br&gt;
+&lt;br&gt;
+**.purple[Las fuciones canónicas] .orange[(definidas por defecto)]** de las familias de distribución de probabilidades se describen a continuación. Es importante también saber cuál es el valor y calculado en el Rango de cada función.
+&lt;br&gt;
+
+Distribución | Rango de `\(Y\)` | Notación de&lt;br&gt;distribución | Función de &lt;br&gt;enlace canónica `\(g(\mu)\)` | Valor esperado `\(\mathbb{E}(Y)\)` | Param.&lt;br&gt;Varianza `\(\phi\)`  
+-|-|    :----:   |    :----:   |    :----:   |    :----:   |
+Gaussiana | `\(\mathbb{R}\)` | `\(\mathcal{N}(\mu,\sigma^2)\)` | `\(\mu\)` | `\(\eta\)` | `\(\sigma^2\)`
+Bernoulli | `\({0,1}\)` | `\(\mathrm{Ber}(p)\)` | `\(\mathrm{logit}(\mu)\)` | `\(\mathrm{logistic}(\eta)\)` | 1 
+Binomial | `\({0,...,N}\)` | `\(\mathrm{B}(N,p)\)` | `\(\log\left(\frac{\mu}{N-\mu}\right)\)` | `\(N\cdot\mathrm{logistic}(\eta)\)` | 1
+Poisson | `\({0,1,...}\)` | `\(\mathrm{Pois}(\lambda)\)` | `\(\log(\mu)\)` | `\(e^\eta\)` | 1
+Gamma| `\((0,\infty)\)` | `\(\Gamma(a,\nu)\)` | `\(-\frac{1}{\mu}\)` | `\(-\frac{1}{\eta}\)` | `\(\frac{1}{v}\)`
+
+---
+
+# Topología de los función `glm()` en R
+
+
+```r
+# Estructura generalizada
+glm(formula, data = DF, family = `familia(link = "función.de.enlace"`))
+
+# Regresión logística (ejemplo)
+glm(y ~ x1 + x2, data = DF, family = binomial(link = "logit"))
+
+# Regresión de Poisson (ejemplo)
+glm(y ~ x1 + x2, data = DF, family = poisson(link = "log"))
+```
+
+&lt;br&gt;
+- Las **.orange[fórmulas]** definen el enfrentamiento de las variables explicativas `\(X\)` y la variable respuesta `\(Y\)`.
+
+---
+
+# Regresiones GLM
+
+- **.orange[Regresión Logística (Bernoulli, Binomial)]**
+
+- **.orange[Regresión de Poisson]**
+
+- **.orange[ Regresión Binomial Negativa]**
+
+- **.orange[Regresión de Hurdle]**
+
+- Regresión Zeroinflado
+
+- Regresión Beta
+
+- Regresión Gaussiana ( `\(\equiv\)` Regresión Lineal Clásica)
+
+- Regresión Gamma
+
+- ...
+
+---
+class: inverse, middle, center, animated, slideInRight1
+# Regresión Logística
+[ Modelamiento de respuestas discretas binarias ]
+
+---
+class: center, middle
+
+--
+
+## ¿Cómo luce una regresión logística?
+
+--
+
+&lt;img src="figs/sigmoidal.png" width="55%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Regresión Logistica
+
+- La variable respuesta `\(Y\)` es binaria (Distribución de Probabilidades de Bernoulli)
+
+
+`\begin{align*}
+Y=\left\{\begin{array}{ll}
+1,&amp;\text{(evento) con probabilidad }p,\\
+0,&amp;\text{(no evento) con probabilidad }1-p,
+\end{array}\right.
+\end{align*}`
+
+--
+
+- Si asumimos que 
+`$$\mathbb{E}[Y|X_1 = x_1,...,X_p = x_p] = \beta_0+\beta_1x_1+...+\beta_px_p, \sigma^2=\eta$$`
+
+&lt;center&gt;Estaríamos aceptando predicciones  negativas y positivas fuera del rango `\([0,1]\)`. &lt;/center&gt;
+
+--
+
+&lt;br&gt;
+- Para evitar tal error, se utiliza una **.orange[función de enlace]** `\(\mathbb{g}()\)` que **.purple[proyecte]** `\(Y\)` sobre los números `\(\mathbb{R}\)` `\((-\infty, +\infty)\)`, y su operación inversa `\(\mathbb{g}^{-1}()\)` para **.purple[devolver]** las predicciones del modelo al rango `\([0,1]\)`.
+
+---
+
+# Concepto de Probabilidad
+
+.pull-left[
+- **Probabilidad:** es la probabilidad de que un evento suceda.
+`$$p=0.8$$` 
+
+&lt;center&gt; &lt;span style= 'color: #949494;'&gt; Imagina que ese p significa un 80% de probabilidad de que llueva en un día nublado. &lt;/span&gt; &lt;/center&gt;
+
+&lt;br&gt;
+&lt;br&gt;
+- Para **.orange[interpretar los resultados]** de la regresión logística, debemos introducir la terminología adecuada para ello: los **odds**. 
+]
+
+.pull-right[
+&lt;img src="https://source.unsplash.com/QxxqESp1ll8" height="400" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Concepto de Odds
+
+
+- **Odds:** es la **.orange[posibilidad de éxito]** de un evento. Está definido como la probabilidad de que el evento ocurra dividida por la probabilidad de que este mismo evento no ocurra.  
+
+--
+
+`$$\begin{align}
+\mathrm{odds}(Y):=\frac{p}{1-p}=\frac{\mathbb{P}[Y=1]}{\mathbb{P}[Y=0]}
+\end{align}$$`
+
+--
+
+&lt;center&gt; &lt;span style= 'color: #949494;'&gt; Si existe un 80% de probabilidad de que llueva en un día nublado y 20% de que no las posibilidades de que llueva en un día nublado son: &lt;/span&gt; &lt;/center&gt;
+
+--
+
+$$ odds= \frac{0.8}{1-0.8} = \frac{0.8}{0.2} = 4 $$
+
+--
+
+&lt;center&gt; &lt;span style= 'color: #949494;'&gt; La posibilidad de que llueva en un día nublado es 4 veces la posibilidad de que no llueva. &lt;/span&gt; &lt;/center&gt;
+
+---
+
+# Concepto de Odds ratio
+
+- **Odds ratio:** es el **.orange[ratio o división de dos odds]** asociados. Está definido como la probabilidad de &lt;br&gt;que el evento ocurra dividida por la probabilidadde que este mismo evento no ocurra.  
+
+--
+
+$$ \text{odds ratio} = \frac{odds_1}{odds_2} = \frac{\frac{p_1}{1-p_1}}{\frac{p_2}{1-p_2}}  $$
+
+--
+
+&lt;center&gt; &lt;span style= 'color: #949494;'&gt; Si consideramos que la probabilidad de que llueva `\(p_2\)` en un día soleado es de 10% &lt;/span&gt; &lt;/center&gt;
+
+$$ odds_2 = \frac{p_2}{1-p_2} = \frac{0.1}{1-0.1} = \frac{0.1}{0.9} = 0.111...$$
+
+--
+
+&lt;center&gt; &lt;span style= 'color: #949494;'&gt; En consecuencia &lt;/span&gt; &lt;/center&gt;
+$$ \text{odds ratio} = \frac{odds_1}{odds_2} = \frac{4}{0.111} = 36$$
+
+--
+
+&lt;center&gt; &lt;span style= 'color: #949494;'&gt;El ratio de las posibilidades de que llueva en un día nublado es 36 veces la posibilidad de llueva en un día soleado  &lt;/span&gt; &lt;/center&gt;
+
+---
+
+# Por qué Odds y Log odds
+
+$$
+`\begin{align}
+odds &amp;= \frac{p}{1-p} \\
+\mathbb{log}(odds) &amp;= \mathbb{log}(\frac{p}{1-p}) 
+\end{align}`
+$$
+--
+
+.pull-left[
+$$
+`\begin{align}
+\mathbb{log}(odds) &amp;= \mathbb{log}(\frac{p}{1-p}) \\
+\text{si p = 0, entonces} \\
+\mathbb{log}(odds) &amp;= \mathbb{log}(\frac{0}{1-0}) \\
+\mathbb{log}(odds) &amp;= \mathbb{log}(\frac{0}{1}) \\
+\mathbb{log}(odds) &amp;= \mathbb{log}(0) - \mathbb{log}(1)\\
+\mathbb{log}(odds) &amp;= -\infty - 0\\
+\mathbb{log}(odds) &amp;= -\infty
+\end{align}`
+$$
+
+]
+
+.pull-right[
+$$
+`\begin{align}
+\mathbb{log}(odds) &amp;= \mathbb{log}(\frac{p}{1-p}) \\
+\text{si p = 1, entonces} \\
+\mathbb{log}(odds) &amp;= \mathbb{log}(\frac{1}{1-1}) \\
+\mathbb{log}(odds) &amp;= \mathbb{log}(\frac{1}{0}) \\
+\mathbb{log}(odds) &amp;= \mathbb{log}(1) - \mathbb{log}(0)\\
+\mathbb{log}(odds) &amp;= 0 - -\infty\\
+\mathbb{log}(odds) &amp;= +\infty
+\end{align}`
+$$
+]
+
+---
+
+.pull-code[
+
+# Función Logit
+- Proyecta valores entre `[0,1]` en los `\(\mathbb{R}\)` 
+`$$\begin{align}
+&amp;\mathrm{logit}(\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p])=\eta\\
+\end{align}$$`
+- Siendo que, 
+`$$\begin{align*}
+\eta=\beta_0+\beta_1x_1+\cdots+\beta_px_p.
+\end{align*}$$`
+
+- Para ser más precisos en la interpretación de los coeficientes, necesitamos introducir las posibilidades **.orange[(los odds)]**.
+
+]
+
+.pull-plot[
+&lt;img src="figs/logitprobit-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Intepretar los coeficientes (R. logística)
+
+- `\(\beta_0:\)` son los log-odds cuando `\(X_1=\ldots=X_p=0\)` 
+- `\(\beta_j\)` es el incremento de los log-odds por cada unidad de incremento de la variable `\(X_j\)` cuando las demás variables explicativas se mantinenen constantes en cero (no cambian).
+
+--
+&lt;br&gt;
+
+Como estos valores no son sencillos de interpretar, se deben **.orange[transformar]**:
+- `\(e^{\beta_0}:\)` son los odds cuando `\(X_1=\ldots=X_j=0\)` 
+- `\(e^{\beta_j}:\)` es el incremento multiplicativo de los odds por cada unidad de incremento de la variable `\(X_j\)` cuando las demás variables explicativas se mantinenen constantes en cero (no cambian).
+
+--
+&lt;br&gt;
+&lt;br&gt;
+
+Interpretar los resultados a primera vista nos puede dar una idea del efecto de `\(X_j\)` sobre `\(\mathbb{E}[Y]\)`
+- Si: `\(\beta_j&gt;0 \to e^{\beta_j}&gt;1 \to\)` incremento de la posibilidad
+- Si: `\(\beta_j&lt;0 \to e^{\beta_j}&lt;1 \to\)` disminución de la posibilidad
+- Si: `\(\beta_j=0 \to e^{\beta_j}=1 \to\)` efecto nulo
+
+---
+
+&lt;br&gt;
+Si tendo **.purple[odds]**, puedo convertirlo en probabilidad usando la fórmula:
+
+$$ 
+`\begin{align}
+\mathrm{odds} &amp;= e^{\beta_j}\\
+\\
+e^{\beta_j}&amp;= \frac{p}{1-p}\\
+\\
+e^{\beta_j} * (1-p) &amp;= p\\
+\\
+e^{\beta_j} - e^{\beta_j}*p &amp;= p\\
+\\
+e^{\beta_j} &amp;= p + e^{\beta_j}*p \\
+\\
+e^{\beta_j} &amp;= p * (1 + e^{\beta_j}) \\
+\\
+p &amp;= \frac{e^{\beta_j}}{(1 + e^{\beta_j})}\\
+\end{align}`
+$$
+---
+
+&lt;br&gt;
+Si tengo **.purple[odds ratio (OR)]**, puedo convertirlo en probabilidad usando la fórmula:
+
+$$ 
+`\begin{align}
+\mathrm{OR} &amp;= \frac{e^{\beta_j}}{e^{\beta_0}}\\
+\\
+\mathrm{OR} &amp;= \frac{\frac{p_1}{1-p_1}}{\frac{p_0}{1-p_0}}\\
+\\
+\mathrm{OR} &amp;= \frac{\frac{p_1}{1-p_1}}{{e^{\beta_0}}}\\
+\\
+\mathrm{OR} * e^{\beta_0} &amp;= \frac{p_1}{1-p_1}\\
+\\
+p &amp;= \frac{\mathrm{OR} * e^{\beta_0}}{[1 + (\mathrm{OR} * e^{\beta_0})]}\\
+\end{align}`
+$$
+
+---
+
+# Problema de estudio
+
+Trabajaremos con la información de este artículo. 
+[link](https://onlinelibrary.wiley.com/doi/abs/10.1111/eff.12399)
+
+&lt;img src="figs/paper1.jpg" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+background-image: url(figs/pumpkinseed.jpg)
+background-size: cover
+
+
+&lt;br&gt;
+&lt;br&gt;
+Algunos individuos de los peces **_Lepomis gibbosus_** tienen un punto rojo sobre su opérculo, el que ha sido asociado con comportamientos de dominancia sobre estrategias de apareamiento. Estas estrategias relacionadas al sexo son:
+
+- Ser **Macho Territorial** y &lt;br&gt;mantener un grupo de nidos.
+
+- Ser **Macho Furtivo** y fecundar nidos &lt;br&gt;de peces territoriales.
+
+- Algunas **hembras** tienen punto rojo, &lt;br&gt;se incluyen en la comparación.
+
+
+---
+
+.panelset[
+.panel[.panel-name[Gráfico]
+&lt;img src="figs/long-tact.png" width="78%" style="display: block; margin: auto;" /&gt;
+]
+
+.panel[.panel-name[Código]
+
+
+```r
+# Creación del modelo
+final.bin &lt;- glm(punto_rojo ~ tactica * longitud, data = pez, family = binomial(link = "logit"))
+
+# Extracción de los datos del modelo
+df &lt;- ggeffects::ggpredict(final.bin, terms = c("longitud", "tactica"))
+
+# Gráfico avanzado con ggplot2
+ggplot(data=df, aes(x, predicted)) + 
+  scale_x_continuous(breaks = seq(0,150,20), expand=c(0,0))+
+  coord_cartesian(clip = "off")+
+  geom_jitter(data=pez, aes(x=longitud, y=punto_rojo, color=tactica, group=tactica), 
+              alpha=0.2, size=2,width = 0.05, height = 0.02)+
+  geom_line(aes(linetype=group, color=group), lwd=1) +
+  geom_ribbon(aes(ymin=conf.low, ymax=conf.high,fill=group), alpha=0.1) +
+  labs(x="Longitud del Pez (mm)", y="Probabilidad de tener Punto Rojo en el Opérculo", title="",
+       color="Táctica", linetype="Táctica", fill="Táctica")+
+  theme_bw()+
+  theme(text = element_text(colour = "#646464"))
+```
+
+.panel[.panel-name[Gráfico alternativo]
+
+
+```r
+ p + facet_grid( ~ tactica, scales = "fixed", space = "free")
+```
+
+&lt;img src="figs/long-tact2.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+
+.panel[.panel-name[Código alternativo 2]
+
+```r
+t &lt;- ggplot(data=subset(df, df$group=="Territorial"), aes(x=x, y=predicted)) + 
+  scale_x_continuous(breaks = seq(0,150,20), expand=c(0,0))+
+  geom_jitter(data=subset(pez, pez$tactica=="Territorial"), aes(x=longitud, y=punto_rojo, group=tactica), 
+color="#619CFF", alpha=0.2, size=2,width = 0.05, height = 0.02)+
+  geom_line(color="#619CFF", lwd=1) +
+  geom_ribbon(aes(ymin=conf.low, ymax=conf.high), fill="#619CFF", alpha=0.1) +
+  labs(x="Longitud del Pez (mm)", y="Probabilidad de tener Punto Rojo en el Opérculo", 
+       title="Territorial", color="Táctica")+ theme_bw() + theme(text = element_text(colour = "#646464"))
+h &lt;- ggplot(data=subset(df, df$group=="Hembra"), aes(x=x, y=predicted)) + 
+  scale_x_continuous(breaks = seq(0,150,20), expand=c(0,0))+
+  geom_jitter(data=subset(pez, pez$tactica=="Hembra"), aes(x=longitud, y=punto_rojo, group=tactica), 
+color="#F8766D", alpha=0.2, size=2,width = 0.05, height = 0.02)+
+  geom_line(color="#F8766D", lwd=1)+
+  geom_ribbon(aes(ymin=conf.low, ymax=conf.high), fill="#F8766D", alpha=0.1) +
+  labs(x="Longitud del Pez (mm)", y="Probabilidad de tener Punto Rojo en el Opérculo", 
+       title="Hembra", color="Táctica")+ theme_bw() + theme(text = element_text(colour = "#646464"))
+f &lt;- ggplot(data=subset(df, df$group=="Furtivo"), aes(x=x, y=predicted)) + 
+  scale_x_continuous(breaks = seq(0,150,20), expand=c(0,0))+
+  geom_jitter(data=subset(pez, pez$tactica=="Furtivo"), aes(x=longitud, y=punto_rojo, group=tactica), 
+color="#00BA38", alpha=0.2, size=2,width = 0.05, height = 0.02)+
+  geom_line(color="#00BA38", lwd=1) +
+  geom_ribbon(aes(ymin=conf.low, ymax=conf.high), fill="#00BA38", alpha=0.1) +
+  labs(x="Longitud del Pez (mm)", y="Probabilidad de tener Punto Rojo en el Opérculo", 
+       title="Furtivo", color="Táctica")+ theme_bw() + theme(text = element_text(colour = "#646464"))
+
+ggpubr::ggarrange(h,f,t, ncol=3, nrow=1)
+```
+]
+
+.panel[.panel-name[Gráfico alternativo 2]
+
+&lt;img src="figs/long-tact3.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+
+]
+]
+
+---
+
+# Desarrollemos la práctica
+
+<div class="countdown" id="timer_6199c3fa" style="right:0;bottom:0;left:0;margin:12%;padding:100px;font-size:6em;" data-warnwhen="30">
+<code class="countdown-time"><span class="countdown-digits minutes">60</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+background-image: url(figs/zorro.jpg)
+background-size: cover
+
+# Cuando Y no es Binaria
+
+- Existen casos en los que la variable respuesta no es binaria (no se obtiene de un evento de Bernoulli): y obtenemos **Número de éxitos de un total de N intentos o eventos.**
+
+--
+
+- Estos son casos donde la distribución de probabilidades es Binomial y no Bernoulli puro.
+ 
+--
+ 
+.pull-left[ 
+
+1. La fertilización cruzada de un Zorro de sechura **.purple[_Lycalopex sechurae_]** de Ecuador con uno de Perú produce algunas veces zorros totalmente grises. Se quiere encontrar la probabilidad de que nazcan zorros grises de un total de las cinco crías.
+
+ `$$Y = \text{# de zorros grises en cinco crías}$$`
+]
+
+---
+background-image: url(figs/zorro.jpg)
+background-size: cover
+
+# Problema de estudio
+
+Deseamos conocer si los genes 208S2 y AD922 tienen relación con la probabilidad de encontrar un zorro gris en 10 crias.
+
+
+```r
+# En estos casos, el modelo sería (T =  alumbramientos, N = crías)
+glm(`(N/T)` ~ x1 + x2, data=DF, family = binomial(link = "logit"),`weights = T`)
+```
+
+.pull-left[
+- Variable respuesta: `\(Y\)` # de crías grises por cada 10 alumbramientos.
+
+- Variables respuesta: genes 208S y AD92.
+]
+
+---
+
+.panelset[
+.panel[.panel-name[Gráfico]
+&lt;img src="figs/gen208S2.png" width="78%" style="display: block; margin: auto;" /&gt;
+]
+
+
+.panel[.panel-name[Código]
+
+
+```r
+# Creación del modelo
+modelo &lt;- glm(cri_int ~ genAD922 + gen208S2, data=zorrito, 
+              family=binomial(link = "logit"), weights = intentos)
+
+# Extracción de los datos del modelo
+df2 &lt;- ggeffects::ggpredict(modelo, terms = c("gen208S2"))
+
+# Gráfico avanzado con ggplot2
+ggplot(data=df2, aes(x, predicted)) + 
+  scale_x_continuous(expand=c(0,0))+
+  coord_cartesian(clip = "off")+
+  geom_point(data=zorrito, aes(x=gen208S2, y=cri_int), color="#646464", alpha=0.2, size=2)+
+  geom_line(color="#5f00db", lwd=1) +
+  geom_ribbon(aes(ymin=conf.low, ymax=conf.high), fill="#5f00db", alpha=0.1) +
+  labs(y="Probabilidad", x="Gen 208S2",
+       title="Predicción de la probabilidad de obtención de crías grises",
+       subtitle = expression(paste("por la expresión del gen 208S2 en poblaciones de
+                                   Ecuador y Perú de Zorro de Sechura", italic(" Lycalopex sechurae"))))+
+  theme_bw()+
+  theme(plot.title = element_text(colour = "#5f00db", face=2, size=13),
+        plot.subtitle = element_text(size=10),
+        text = element_text(colour = "#646464"))
+```
+
+]
+]
+
+---
+
+# Desarrollemos la práctica
+
+<div class="countdown" id="timer_6199c385" style="right:0;bottom:0;left:0;margin:12%;padding:100px;font-size:6em;" data-warnwhen="30">
+<code class="countdown-time"><span class="countdown-digits minutes">30</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+name: poisson
+class: inverse, middle, center, hide-logo, animated, slideInRight
+
+# Regresión de Poisson
+[ Modelamiento de respuestas discretas tipo conteo ]
+
+---
+background-image: url(figs/ovejas.png)
+background-size: cover
+
+# Regresión de Poisson
+
+--
+
+- Es adecuado para datos ecológicos en los que la variable de respuesta comprende datos de **.orange[recuento]**:
+
+--
+
+ - número de individuos.
+
+--
+
+ - número de especies en un hábitat específico, etc.
+
+--
+
+- Los datos son **.orange[números enteros positivos]**. 
+
+
+- Los ceros tienen mucha influencia. **.orange[Debe haber pocos ceros.]**
+
+--
+
+- Se asume que la **.orange[varianza es aproximadamente igual a la media]** (parámetro `\(\lambda\)`). 
+
+---
+
+# Caso de estudio Regresión de Poisson:
+
+&lt;img src="figs/paper_kawamura_2019_carat.jpg" width="70%" style="display: block; margin: auto;" /&gt;
+
+- [Base de Datos - Repo Figshare.com](https://figshare.com/articles/dataset/Data_of_survey_site_distribution_bird_species_richness_and_environment/9175574)
+- [Artículo Original - Journal Ecology and Evolution](https://onlinelibrary.wiley.com/doi/full/10.1002/ece3.5286)
+- Datos de **.orange[riqueza de especies de aves]** (todas las especies, residentes, migrantes de corta distancia y larga distancia tanto en bosques como en pastizales) y **datos ambientales** (temperatura media anual, profundidad de la nieve, elevación y extensión del hábitat circundante) en cada sitio en cada temporada
+
+---
+
+.panelset[
+.panel[.panel-name[Gráfico 1]
+&lt;img src="figs/temppois.png" width="65%" style="display: block; margin: auto;" /&gt;
+]
+
+.panel[.panel-name[Código 1]
+
+
+```r
+plot_model(glm.aves3, type="pred", show.data = T, 
+           terms = c("temp_pa"), show.legend = F,
+           colors = "#5f00db")+aes(color="", fill="")+ 
+  theme_bw()+
+    scale_x_continuous(expand=c(0,0))+
+  coord_cartesian(clip="off")+
+  labs(title="", y="Riqueza total de aves", 
+       x="Temperatura Promedio Anual (°C)")
+```
+
+.panel[.panel-name[Gráfico 2]
+&lt;img src="figs/nievepois.png" width="65%" style="display: block; margin: auto;" /&gt;
+]
+
+.panel[.panel-name[Código 2]
+
+```r
+plot_model(glm.aves3, type="pred", show.data = T, 
+           terms = c("nieve"), show.legend = F,
+           colors = "#5f00db")+aes(color="", fill="")+ 
+  theme_bw()+
+    scale_x_continuous(expand=c(0,0))+
+  coord_cartesian(clip="off")+
+  labs(title="", y="Riqueza total de aves", x="Nieve")
+```
+]
+
+.panel[.panel-name[Gráfico 3]
+&lt;img src="figs/irrpois.png" width="65%" style="display: block; margin: auto;" /&gt;
+]
+
+.panel[.panel-name[Código 3]
+
+```r
+plot_model(glm.aves3, show.values = T, show.p = T, 
+           vline.color = "gray70", digits = 4) + 
+  theme_bw()+
+  labs(title="", y="Cocientes de Tasas de Incidencia (IRR)")+
+  scale_x_discrete(labels = c("temp_pa"="Temperatura \nPromedio \nAnual",
+                              "nieve"="Nieve", 
+                              "temp_pa:nieve"="Interacción \nTemp:Nieve"))+
+  scale_y_continuous(limits = c(0.95,1.07), breaks = round(seq(0.95,1.08, length=7),2))
+```
+]
+
+]
+]
+
+---
+
+# Desarrollemos la práctica
+
+<div class="countdown" id="timer_6199c321" style="right:0;bottom:0;left:0;margin:12%;padding:100px;font-size:6em;" data-warnwhen="30">
+<code class="countdown-time"><span class="countdown-digits minutes">60</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+# Intepretar los coeficientes (R. Poisson)
+
+#### Para interpetar los resultados debemos exponenciar los coeficientes del modelo:
+
+- `\(\mathrm{exp}(\beta_0):\)` coeficiente del intercepto. Es el `\(\mathbb{E}[Y]\)` (es decir el promedio `\(\mu\)` esperado) cuando todas las `\(X_j\)` = 0.
+
+--
+
+- `\(\mathrm{exp}(\beta_j):\)` coeficiente de la variable `\(X_j\)`. Con cada unidad de incremento de la variable `\(X_j\)`, dicha variable tiene un efecto multiplicativo de `\(\mathrm{exp}(\beta_j)\)` sobre el `\(\mathbb{E}[Y]\)`.  
+
+--
+
+#### Interpretar los resultados a primera vista nos puede dar una idea del efecto de `\(X_j\)` sobre `\(\mathbb{E}[Y]\)`
+
+- Si: `\(\beta_j=0 \to e^{\beta_j}=1 \to\)` efecto nulo. El `\(\mathbb{E}[Y]\)` es `\(\beta_0\)`. Además, `\(Y\)` y `\(X_j\)` no están relacionados.
+
+--
+
+- Si: `\(\beta_j&gt;0 \to e^{\beta_j}&gt;1 \to\)` incremento del conteo en `\(\mathrm{exp}(\beta_j)\)` veces.
+
+--
+
+- Si: `\(\beta_j&lt;0 \to e^{\beta_j}&lt;1 \to\)` disminución del conteo en `\(\mathrm{exp}(\beta_j)\)` veces.
+
+
+---
+class: inverse, middle, center, animated, slideInRight
+
+# Regresión Binomial Negativa
+[ GLM Poisson cuando se detecta sobredispersión ]
+
+---
+
+# Lidiando con sobredispersión en modelos de conteo
+
+- Los modelos de poisson asumen que `\(\frac{\mu}{var} = 0\)`
+
+- Cuando se detecta sobredispersión, se debe trabajar con modelos Binomiales Negativos.
+
+
+```r
+glm_bn &lt;- MASS::glm.nb(y ~ x1 + x2, data=DF, link = "log")
+summary(glm_bn)
+```
+
+---
+class: middle, center
+
+# Gracias por su atención
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="assets/remark-0.14.0.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "atom-one-light",
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": true,
+"slideNumberFormat": "%current%"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<style>
+.logo {
+  background-image: url(https://raw.githubusercontent.com/irwingss/IrwingRLab/master/escudo.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  bottom: 1em;
+  left: 4em;
+  width: 25px;
+  height: 25px;
+  z-index: 0;
+}
+</style>
+
+<script>
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+    // ':not(.inverse)' +
+    ':not(.hide-logo)'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="logo"></div>';
+  });
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
