@@ -1,0 +1,284 @@
+---
+title: "Modelamiento Avanzado: GLM y GLMM"
+Subtitle: "Ciencia de Datos en R aplicada a la Conservación de Fauna Silvestre"
+Author: "Blgo. Irwing S. Saldaña"
+output: html_document
+editor_options:
+  chunk_output_type: console
+---
+
+Librerías a usar
+
+```{r warning=FALSE, message=FALSE}
+library(ggpubr)
+library(broom)
+library(broom.mixed)
+library(ggfortify)
+library(tidyverse)
+library(lme4)
+library(MuMIn)
+library(performance)
+```
+
+# **1. Regresión Logística (Bernoulli)**
+
+Se desea evaluar el efecto de un tratamiento en el peso de 50 pollitos. Se tomaron dos medidas de cada pollito, una antes del tratamiento (pre) y otra después (post).
+
+## **1.1. Base de datos**
+```{r}
+# Cargando el excel pez.xlsx
+pez <- openxlsx::read.xlsx("slide3/bases/pez.xlsx")
+pez <- openxlsx::read.xlsx(file.choose())
+
+pez$poblacion <- factor(pez$poblacion)
+pez$sexo <-  factor(pez$sexo)
+pez$tactica <- factor(pez$tactica,  labels = c("fem"="Hembra",
+                                       "sneak"="Furtivo",
+                                       "terr"="Territorial"))
+```
+
+## **1.2. Creando el modelo inicial (FULL)**
+```{r}
+# Modelo Full
+modpez <- ...
+
+
+```
+
+## **1.3. Stepwise Regression para la selección de modelos**
+```{r}
+# Selección Stepwise 
+MASS::stepAIC(...)
+
+modpez2 <- ...
+
+# Crear modelo con interacciones
+modpez3 <- ...
+
+# Commparar modelos
+anova(...)
+```
+
+## **1.4. Calidad del modelo**
+```{r}
+# Cálculo del Pseudo R2
+performance::r2(...)
+
+# Verificar la colinearidad de las variavles 
+# (no necesario si hay interacción)
+
+
+# Significancia del modelo
+modpez3_nulo <- update(...)
+anova(...)
+
+```
+
+## **1.5. Obteniendo e interpretando los resultados**
+```{r}
+# Interpretación de coeficientes del modelo Logístico (Bernoulli)
+
+
+```
+
+## **1.6. Gráfico Final**
+```{r}
+# Gráfico semi-automático con sjPlot
+library(sjPlot)
+
+plot_model(MODELO, type="pred", terms = c("VARIABLE_X"), show.data = TRUE)+
+  aes(color="red", fill="red")+
+  theme_bw()
+
+plot_model(MODELO, type="pred", terms = c("VARIABLE_X")) + 
+  theme_bw()
+
+plot_model(MODELO, type="int", show.data = TRUE, colors = "Set2")+
+  theme_bw()
+
+plot_model(MODELO, type="int", show.data = TRUE, 
+           colors = c("cyan4","darkorange","purple"), jitter=c(0,0.05))+
+  theme_bw()
+```
+
+# **2. Regresión Logística (Binomial)**
+
+## **2.1. Base de datos**
+```{r}
+# Cargando el excel zorrito.xlsx
+zorrito <- openxlsx::read.xlsx("slide3/bases/zorrito.xlsx")
+zorrito <- openxlsx::read.xlsx(file.choose())
+
+```
+
+## **2.2. Creando los modelos: sin y con interacción**
+```{r}
+# Creando los modelos
+model1 <- ...
+
+model2 <- ...
+
+# Commparar modelos
+
+```
+
+## **2.3. Calidad del modelo**
+```{r}
+# Cálculo del Pseudo R2 para modelos logisticos Binomiales
+ R2logit<- function(modelo){
+    R2 <- 1-(modelo$deviance/modelo$null.deviance)
+    return(R2)
+ }
+
+
+
+# Verificar la colinearidad de las variavles
+
+
+# Significancia del modelo
+model1_nulo <- ...
+
+
+```
+
+## **2.4. Obteniendo e interpretando los resultados**
+```{r}
+# Generemos el resumen y veamos los coeficientes
+
+
+```
+
+## **2.5. Interpretación con el Gráfico Final**
+```{r}
+# Gráfico semi-automático con sjPlot
+library(sjPlot)
+
+plot_model(MODELO, show.values = TRUE, show.p = TRUE, vline.color = "gray70") + 
+  theme_bw()
+
+plot_model(MODELO, type="pred", show.data = TRUE, terms = c("VARIABLE_X")) + 
+  theme_bw()
+
+plot_model(MODELO, type="pred", show.data = TRUE, terms = c("VARIABLE_X")) + 
+  theme_bw()
+
+plot_model(MODELO, type="pred", show.data = TRUE, 
+           terms = c("VARIABLE_X"), dot.alpha=0.4, colors="purple") + 
+  theme_bw()+
+  aes(color="", fill="")+
+  theme(legend.position="none")+
+  labs(y="Probabilidad", x="Gen 208S2",
+       title= "Expresión del gen 208S2",
+         subtitle=expression(paste("en poblaciones de Ecuador y Perú de Zorro de Sechura ", italic("Lycalopex sechurae"))))
+
+```
+
+# **3. Regresión de Poisson**
+
+## **3.1. Cargando la base de datos**
+
+```{r}
+# Cargando el excel aves.xlsx
+aves <- openxlsx::read.xlsx("slide3/bases/aves.xlsx")
+aves <- openxlsx::read.xlsx(file.choose())
+
+```
+  
+## **3.2. Generando la regresión de Poisson inicial**
+```{r}
+# Generando el modelo inicial
+glm.aves <- ...
+```
+
+## **3.3. Selección del mejor modelo**
+```{r}
+# Stepwise regressión: usando el AIC para la selección
+MASS::stepAIC(...)
+
+glm.aves2 <- ...
+
+glm.aves3 <- ...
+
+# Comparación de modelos
+AIC(...) %>% arrange(AIC)
+
+
+# Vista previa de los resultados
+
+
+```
+
+## **3.4. Validando el mejor modelo Poisson**
+```{r}
+# Pseudo R2 de CoxSnell
+
+
+# Chequeo de la colinearidad de las variables
+
+
+# Chequeo de presencia de outliers
+
+
+# Chequeo de cero inflados
+
+
+# Chequeo de Sobredispersión
+
+```
+
+## **3.5. Interpretación del modelo**
+```{r}
+# Veamos el resumen
+summary(...)
+
+# Obtener los cocientes de tasas de incidencia (Incidence Rate Ratios, IRR)
+# Es decir, simplemente, los coeficientes del modelo de Poisson
+coef(...)
+
+# Interpretando en porcentajes de incremento o disminución de el promedio esperado
+exp(coef(...))
+
+
+
+
+# Interpretando algunas situaciones en concreto
+coef(...)
+
+predict(...)
+exp(...)
+
+```
+
+## **3.6 Gráficos finales del modelo**
+```{r}
+# IRR Plot
+plot_model(...)
+
+plot_model(MODELO, show.values = TRUE, show.p = TRUE, 
+           vline.color = "gray70", digits = 4) + 
+  theme_bw()+
+  labs(title="", y="Cocientes de Tasas de Incidencia (IRR)")+
+  scale_x_discrete(labels = c("temp_pa"="Temperatura \nPromedio \nAnual",
+                              "nieve"="Nieve", 
+                              "temp_pa:nieve"="Interacción \nTemp:Nieve"))+
+  scale_y_continuous(limits = c(0.95,1.07), breaks = round(seq(0.95,1.08, length=7),2))
+
+# Gráfico de efectos de Nieve sobre la riqueza total
+plot_model(MODELO, type="pred", show.data = T, terms = c("VARIABLE_X"), show.legend = F,
+           colors = "#5f00db")+aes(color="", fill="")+ 
+  theme_bw()
+
+# Gráfico de efectos de Temperatura Promedio Anual sobre la riqueza total
+plot_model(MODELO, type="pred", show.data = T, terms = c("VARIABLE_X"), show.legend = F,
+           colors = "#5f00db")+aes(color="", fill="")+ 
+  theme_bw()
+```
+
+# **4. Regresión Binomial Negativa**
+
+```{r}
+# Generar el mejor modelo Poisson utilizando la familia Binomial Negativa
+# Si el modelo no necesita lidiar con sobredispersión aparecerá una advertencia
+glm.aves5 <- ...
+
+```

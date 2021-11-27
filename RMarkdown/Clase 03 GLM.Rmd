@@ -7,16 +7,16 @@ editor_options:
   chunk_output_type: console
 ---
 
-Instalar librerías nuevas
-
-```{r eval=FALSE}
-devtools::install_github("strengejacke/ggeffects")
-```
-
 Librerías a usar
 
 ```{r warning=FALSE, message=FALSE}
+library(ggpubr)
+library(broom)
+library(broom.mixed)
+library(ggfortify)
 library(tidyverse)
+library(lme4)
+library(MuMIn)
 ```
 
 # **1. Regresión Logística (Bernoulli)**
@@ -27,6 +27,7 @@ Se desea evaluar el efecto de un tratamiento en el peso de 50 pollitos. Se tomar
 ```{r}
 # Cargando el excel pez.xlsx
 pez <- openxlsx::read.xlsx("slide3/bases/pez.xlsx")
+pez <- openxlsx::read.xlsx(file.choose())
 str(pez)
 pez$poblacion <- factor(pez$poblacion)
 pez$sexo <-  factor(pez$sexo)
@@ -104,6 +105,7 @@ plot_model(modpez3, type="int", show.data = T,
 ```{r}
 # Cargando el excel zorrito.xlsx
 zorrito <- openxlsx::read.xlsx("slide3/bases/zorrito.xlsx")
+zorrito <- openxlsx::read.xlsx(file.choose())
 str(zorrito)
 ```
 
@@ -177,6 +179,7 @@ plot_model(model1, type="pred", show.data = TRUE,
 ```{r}
 # Cargando el excel aves.xlsx
 aves <- openxlsx::read.xlsx("slide3/bases/aves.xlsx")
+aves <- openxlsx::read.xlsx(file.choose())
 str(aves)
 ```
   

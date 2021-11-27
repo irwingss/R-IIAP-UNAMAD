@@ -1,0 +1,229 @@
+---
+title: "Análisis Estadístico Lineal Avanzado con R"
+author: "Blgo. Irwing S. Saldaña"
+output: html
+editor_options: 
+  chunk_output_type: console
+---
+
+# Instalar librería
+```{r}
+install.packages("MuMIn")
+install.packages("sjPlot")
+install.packages("ggeffects")
+install.packages("glmmTMB")
+install.packages("lme4")
+install.packages("AICcmodavg")
+install.packages("broom")
+install.packages("stargazer")
+install.packages("broom.mixed")
+remotes::install_github("easystats/easystats")
+devtools::install_github("strengejacke/ggeffects")
+```
+
+# Activar librerías
+```{r}
+library(ggpubr)
+library(broom)
+library(broom.mixed)
+library(ggfortify)
+library(tidyverse)
+library(lme4)
+library(MuMIn)
+```
+
+# **1. Modelos Lineales de Efectos Mixtos**
+
+```{r}
+# Cargar la base de datos ranas.xlsx
+ranas <- openxlsx::read.xlsx("slide3/bases/ranas.xlsx")
+ranas <- openxlsx::read.xlsx(file.choose())
+
+# Inspecionemos al objeto ranas
+str(ranas)
+names(ranas)
+View(ranas)
+```
+
+## **1.1. Siempre se comienza con un modelo lineal**
+
+Siempre es necesario hacer gráficos exploratorios para tener una idea de la relación entre la variable respuesta y las variables explicativas, incluyendo alguna variable de efecto aleatorio que se piense pueda tener una influencia en nuestros resultados.
+
+```{r}
+# Gráficos de inspección de la relación entre long_mm y peso, incluyendo al origen
+names(ranas)
+ggscatter(x="long_mm", y="peso_mg", data=ranas)
+ggscatter(x="long_mm", y="peso_mg", 
+          data=ranas, color="origen", add="reg.line")
+
+ggscatter(x="long_mm", y="peso_mg", 
+          data=ranas, color="origen", add="reg.line", 
+          facet.by="origen")
+
+# Modelo Lineal exploratorio
+mod1 <- lm(peso_mg ~ long_mm, data=ranas)
+
+# Resultados
+summary(mod1)
+
+
+# Boxplots de residuales vs variable de agrupamiento
+ranas.au <- augment(mod1)
+View(ranas.au)
+
+ranas.au$origen <- ranas$origen 
+
+ggboxplot(x="origen", y=".resid", data=ranas.au) +
+  geom_hline(yintercept = 0, color="red")
+
+# Revisando las asunciones del modelo lineal
+autoplot(mod1)
+
+```
+
+Se puede aplicar otro enfoque, ¿Qué sucede si incluyo la variable origen en el modelo?. Realicemos este segundo modelo y revisemos todo
+
+```{r}
+# Realizamos el modelo
+mod2 <- lm(peso_mg ~ long_mm + origen, data=ranas)
+
+# Resultados
+summary(mod2)
+
+# Comparemos si este modelo es mejor que el anterior
+anova(mod1, mod2)
+
+# Boxplots de residuales vs variable de agrupamiento
+ranas.au2 <- augment(mod2)
+
+ggboxplot(x="origen", y=".resid", data=ranas.au2) +
+  geom_hline(yintercept = 0, color="red")
+
+# Revisando las asunciones del modelo lineal
+autoplot(mod2)
+
+```
+
+## **1.2. Ejecución del Modelo Lineal de Efectos Mixtos**
+
+```{r}
+# Creación de los modelos de efectos mixtos
+library(lme4)
+mod3 <- lmer(peso_mg ~ long_mm + (1|origen), data=ranas, REML=FALSE)
+mod4 <- lmer(peso_mg ~ long_mm + (long_mm|origen), data=ranas, REML=FALSE)
+
+mod_nulo2 <- update(mod2, . ~ 1)
+mod_nulo3 <- update(mod3, . ~ 1 + (1|origen))
+
+# CONTROL + SHIFT + M
+# library(tidyverse)
+AIC(mod2, mod3, mod4, mod_nulo2, mod_nulo3) %>% arrange(AIC)
+
+# Resultados
+mod4 <- lmer(peso_mg ~ long_mm + (long_mm|origen), data=ranas, REML=TRUE)
+summary(mod4)
+sjPlot::tab_model(mod4)
+
+sjPlot::tab_model(mod4, mod3, dv.labels=c("mod4", "mod3"))
+
+# Testeo de la significancia del modelo
+anova(mod4, mod3, test="LRT") # Likelihood Ratio Test
+# Test de la tasa de verosimilitud
+
+anova(mod4, mod_nulo3, test="LRT") # MODELO SIGNIFICATIVO
+
+# Extracción de los R2
+#Marginal: explicado por fixed
+#Condicional: explicado por ambos fixed y random
+
+r.squaredGLMM(mod4)
+
+# Gráfico del modelo
+ranas$prediccion <- predict(mod4, ranas)
+
+ggplot(ranas, aes(x=long_mm, y=peso_mg, color=origen)) + 
+  geom_line(aes(y=prediccion), size=1)+
+  geom_abline(intercept=2458.18, slope=89.02, lwd=1.2, lty=2)+
+  geom_point(alpha = 0.5, size=3) + 
+  theme_bw()+
+  see::scale_color_flat()+
+  labs(x="Longitud (mm)", y="Peso (mg)", color="Zona de Origen")
+
+
+sjPlot::plot_model(mod4, type="re", vline.color = "black")+
+  theme_bw()+
+  labs(title="", y="Variación en el efecto respecto al promedio poblacional",
+       x="Origen")
+```
+
+## **1.3. Ejecución del Modelo Lineal de Efectos Mixtos con anidamiento**
+
+```{r}
+# Carga la base de datos oats de la libreria MASS
+install.packages("MASS")
+
+library(MASS)
+data("oats")
+View(oats)
+
+# Crear modelos
+# Modelo LM con interacion entre N y V, y efecto de B
+lm <- lm(Y ~ N*V + B, data=oats)
+summary(lm)
+
+# Modelo LM con v
+ModV <- lm(Y ~ V, data=oats)
+summary(ModV)
+
+# Modelo LM con ineraccion entre N y V
+ModVN <- lm(Y ~ N*V, data=oats)
+summary(ModVN)
+
+# Modelo LMM con interaccion V y N, y efecto aleatorio B
+Mod1 <- lmer(Y ~ V*N + (1|B), data=oats, REML=FALSE)
+summary(Mod1)
+
+# Modelo LMM con interaccion V y N, y efecto aleatorio V anidado en B 
+Mod2 <- lmer(Y ~ V*N + (1|B/V), data=oats, REML=FALSE)
+
+# Modelo LMM efecto fijo N, y efecto aleatorio V anidadoB
+Mod3 <- lmer(Y ~ V + (1|B/V), data=oats, REML=FALSE)
+
+# Selección de modelos
+AIC(lm, ModV, ModVN, Mod1, Mod2, Mod3) %>% arrange(AIC)
+
+# Significancia del mejor modelo
+NULO <- update(Mod2, . ~ 1 + (1 | B/V))
+anova(Mod2, NULO, test="LRT")
+
+Mod4 <- lmer(Y ~ N + (1|B/V),  data=oats, REML=FALSE)
+AIC(lm, ModV, ModVN, Mod1, Mod2, Mod3, Mod4) %>% arrange(AIC)
+
+# Modelo final
+final <- Mod4
+
+sjPlot::tab_model(final, auto.label=TRUE, show.icc=FALSE)
+
+# Gráficos del modelo
+oats$prediccion <- predict(final, oats)
+
+ggplot(oats,aes(x=N, y=Y, color=B)) + 
+  geom_line(aes(y=prediccion), size=1)+
+  geom_jitter(alpha = 0.5, size=3) + 
+  theme_bw()+
+  see::scale_color_flat()+
+  labs(x="Nitrógeno", y="Rendimiento", color="Bloque")
+
+sjPlot::plot_model(final, type="est")
+sjPlot::plot_model(final, type="re")
+sjPlot::plot_model(final, type="eff", terms=c("N"))
+
+# autoplot(final)
+
+sjPlot::plot_model(final, type="re", vline.color = "black")[[1]]+
+  theme_bw()
+
+sjPlot::plot_model(final, type="re", vline.color = "black")[[2]]+
+  theme_bw()
+
+```

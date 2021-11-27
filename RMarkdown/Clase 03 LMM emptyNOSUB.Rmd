@@ -1,0 +1,196 @@
+---
+title: "Análisis Estadístico Lineal Avanzado con R"
+author: "Blgo. Irwing S. Saldaña"
+output: html
+editor_options: 
+  chunk_output_type: console
+---
+
+# Instalar librería
+```{r}
+install.packages("MuMIn")
+install.packages("sjPlot")
+install.packages("ggeffects")
+install.packages("glmmTMB")
+install.packages("lme4")
+install.packages("AICcmodavg")
+install.packages("broom")
+install.packages("stargazer")
+install.packages("broom.mixed")
+remotes::install_github("easystats/easystats")
+devtools::install_github("strengejacke/ggeffects")
+```
+
+# Activar librerías
+```{r}
+library(ggpubr)
+library(broom)
+library(broom.mixed)
+library(ggfortify)
+library(tidyverse)
+library(lme4)
+library(MuMIn)
+```
+
+# **1. Modelos Lineales de Efectos Mixtos**
+
+```{r}
+# Cargar la base de datos ranas.xlsx
+ranas <- openxlsx::read.xlsx("slide3/bases/ranas.xlsx")
+ranas <- openxlsx::read.xlsx(file.choose())
+
+# Inspecionemos al objeto ranas
+
+
+
+```
+
+## **1.1. Siempre se comienza con un modelo lineal**
+
+Siempre es necesario hacer gráficos exploratorios para tener una idea de la relación entre la variable respuesta y las variables explicativas, incluyendo alguna variable de efecto aleatorio que se piense pueda tener una influencia en nuestros resultados.
+
+```{r}
+# Gráficos de inspección de la relación entre long_mm y peso, incluyendo al origen
+ggscatter(...)
+
+
+# Modelo Lineal exploratorio
+mod1 <- ...
+
+# Resultados
+
+
+
+# Boxplots de residuales vs variable de agrupamiento
+ranas.au <- augment(...)
+ranas.au$origen <- ranas$origen
+
+ggboxplot(...)
+
+# Revisando las asunciones del modelo lineal
+autoplot(...)
+
+
+```
+
+Se puede aplicar otro enfoque, ¿Qué sucede si incluyo la variable origen en el modelo?. Realicemos este segundo modelo y revisemos todo
+
+```{r}
+# Realizamos el modelo
+mod2 <- ...
+
+# Resultados
+
+
+# Comparemos si este modelo es mejor que el anterior
+anova(...)
+
+# Boxplots de residuales vs variable de agrupamiento
+ranas.au2 <- augment(...)
+
+ggboxplot(...)
+
+
+# Revisando las asunciones del modelo lineal
+
+
+```
+
+## **1.2. Ejecución del Modelo Lineal de Efectos Mixtos**
+
+```{r}
+# Creación de los modelos de efectos mixtos
+library(lme4)
+mod3 <- ...
+mod4 <- ...
+
+mod_nulo2 <- ...
+mod_nulo3 <- ...
+
+
+
+# Resultados
+
+
+
+# Testeo de la significancia del modelo
+
+
+# Extracción de los R2
+#Marginal: explicado por fixed
+#Condicional: explicado por ambos fixed y random
+
+
+# Gráfico del modelo
+ranas$prediccion <- predict(MODELO, ranas)
+
+ggplot(ranas, aes(x=long_mm, y=peso_mg, color=origen)) + 
+  geom_line(aes(y=prediccion), size=1)+
+  geom_abline(intercept=2458.18, slope=89.02, lwd=1.2, lty=2)+
+  geom_point(alpha = 0.5, size=3) + 
+  theme_bw()+
+  see::scale_color_flat()+
+  labs(x="Longitud (mm)", y="Peso (mg)", color="Zona de Origen")
+
+sjPlot::plot_model(mod3, type="re", vline.color = "black")+
+  theme_bw()+
+  labs(title="", y="Variación en el efecto respecto al promedio poblacional",
+       x="Origen")
+```
+
+## **1.3. Ejecución del Modelo Lineal de Efectos Mixtos con anidamiento**
+
+```{r}
+# Carga la base de datos oats de la libreria MASS
+library(MASS)
+data("oats")
+View(oats)
+
+# Crear modelos
+# Modelo LM con interacion entre N y V, y efecto de B
+lm <- ...
+
+# Modelo LM con v
+ModV <- ...
+
+# Modelo LM con ineraccion entre N y V
+ModVN <- ...
+
+# Modelo LMM con interaccion V y N, y efecto aleatorio B
+Mod1 <- ...
+
+# Modelo LMM con interaccion V y N, y efecto aleatorio V anidado en B 
+Mod2 <- ...
+
+# Modelo LMM efecto fijo N, y efecto aleatorio V anidadoB
+Mod3 <- ...
+
+# Selección de modelos
+
+
+# Significancia del mejor modelo
+NULO <- update(...)
+
+
+# Modelo final
+final <- ...
+
+sjPlot::tab_model(final, auto.label=FALSE, show.icc=FALSE)
+
+# Gráficos del modelo
+oats$prediccion <- predict(final, oats)
+
+ggplot(oats,aes(x=N, y=Y, color=B)) + 
+  geom_line(aes(y=prediccion), size=1)+
+  geom_jitter(alpha = 0.5, size=3) + 
+  theme_bw()+
+  see::scale_color_flat()+
+  labs(x="Longitud (mm)", y="Peso (mg)", color="Zona de Origen")
+
+sjPlot::plot_model(final, type="re", vline.color = "black")[[1]]+
+  theme_bw()
+
+sjPlot::plot_model(final, type="re", vline.color = "black")[[2]]+
+  theme_bw()
+
+```

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Análisis Estadístico Lineal Avanzado en R - 3</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Irwing S. Saldaña" />
+    <meta name="author" content="Departamento de Ecoinformática y Biogeografía" />
+    <meta name="author" content="Instituto de Ciencias Antonio Brack" />
+    <meta name="date" content="2021-01-01" />
+    <script src="assets/header-attrs/header-attrs.js"></script>
+    <link href="assets/tile-view/tile-view.css" rel="stylesheet" />
+    <script src="assets/tile-view/tile-view.js"></script>
+    <script src="assets/xaringanExtra_fit-screen/fit-screen.js"></script>
+    <script src="assets/clipboard/clipboard.min.js"></script>
+    <link href="assets/xaringanExtra-clipboard/xaringanExtra-clipboard.css" rel="stylesheet" />
+    <script src="assets/xaringanExtra-clipboard/xaringanExtra-clipboard.js"></script>
+    <script>window.xaringanExtraClipboard(null, {"button":"Copy Code","success":"Copied!","error":"Press Ctrl+C to Copy"})</script>
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"x2d1c284411a41ce8805e196f2bc8209","expires":1}</script>
+    <script src="assets/himalaya/himalaya.js"></script>
+    <script src="assets/js-cookie/js.cookie.js"></script>
+    <link href="assets/editable/editable.css" rel="stylesheet" />
+    <script src="assets/editable/editable.js"></script>
+    <script src="assets/fabric/fabric.min.js"></script>
+    <link href="assets/xaringanExtra-scribble/scribble.css" rel="stylesheet" />
+    <script src="assets/xaringanExtra-scribble/scribble.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', function() { window.xeScribble = new Scribble({"pen_color":["#FF0000"],"pen_size":3,"eraser_size":30,"palette":[]}) })</script>
+    <link href="assets/xaringanExtra-extra-styles/xaringanExtra-extra-styles.css" rel="stylesheet" />
+    <link href="assets/countdown/countdown.css" rel="stylesheet" />
+    <script src="assets/countdown/countdown.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+class: title-slide, middle, center
+
+# &lt;span style = 'font-size: 110%;color:#5f00db;'&gt;Análisis Estadístico Lineal &lt;br&gt;Avanzado en R (parte II)&lt;/span&gt;
+## &lt;span style = 'font-size: 75%;color:#212121;'&gt;Curso Colaborativo IIAP - UNAMAD&lt;/span&gt;
+### &lt;span style = 'font-size: 85%;color:#212121;'&gt;Irwing S. Saldaña&lt;/span&gt;
+### &lt;span style = 'font-size: 80%; color:#919191; font-weight:lighter;'&gt;[Instituto de Ciencias Antonio Brack](https://www.brackinstitute.com/)&lt;br&gt;Departamento de Ecoinformática y Biogeografía&lt;br&gt;Perú, 2021&lt;/span&gt;
+
+
+
+&lt;style type="text/css"&gt;
+/* Footnote */
+.remark-slide-content:after {
+    content: "Blgo. Irwing S. Saldaña | Instituto de Ciencias Antonio Brack, Perú";
+    opacity: 0.9;
+    position: absolute;
+    text-align: left;
+    height: 26px;
+    font-size: 12pt;
+    left: 120px;
+    bottom: 18px;
+    font-weight: normal;
+    width: 1200px;
+}
+
+.scroll-box-8 {
+  height:8em;
+  overflow-y: scroll;
+}
+.scroll-box-10 {
+  height:10em;
+  overflow-y: scroll;
+}
+.scroll-box-12 {
+  height:12em;
+  overflow-y: scroll;
+}
+.scroll-box-14 {
+  height:14em;
+  overflow-y: scroll;
+}
+.scroll-box-16 {
+  height:16em;
+  overflow-y: scroll;
+}
+.scroll-box-18 {
+  height:18em;
+  overflow-y: scroll;
+}
+.scroll-box-19 {
+  height:19em;
+  overflow-y: scroll;
+}
+.scroll-box-22 {
+  height:22em;
+  overflow-y: scroll;
+}
+.scroll-output {
+  height: 80%;
+  overflow-y: scroll;
+}
+.pull-trescuartos{
+    color: #777;
+    width: 70%;
+    height: 92%;
+    float: left;
+}
+.pull-code {
+    color: #777;
+    width: 40%;
+    height: 92%;
+    float: left;
+}
+.pull-plot {
+    width: 59%;
+    float: right;
+    padding-left: 1%;
+}
+.remark-inline-code {
+    background: #e7e8e2;
+    border-radius: 3px;
+    padding: 4px;
+}
+.blockquote {
+  border-left: solid 5px lightgray;
+  padding-left: 1em;
+}
+
+&lt;/style&gt;
+
+---
+class: inverse, middle, center 
+background-image: url(figs/fondo.jpg)
+background-size: cover
+background-position: top
+
+&lt;img src="figs/aboutme.png" width="25%" style="display: block; margin: auto;" /&gt;
+
+### Blgo. Irwing S. Saldaña &lt;br&gt;&lt;span style= 'font-size:80%; font-weigth: light;'&gt; Instructor&lt;/span&gt;
+&lt;span style= 'font-family: calibri; color: white'&gt;Dpto. de Ecoinformática y Biogeografía,&lt;br&gt;
+Instituto de Ciencias Antonio Brack, Perú&lt;/span&gt;
+
+.white[[Website](https://www.brackinstitute.com/)|[ ResearchGate ](https://www.researchgate.net/profile/Irwing-Saldana)|[ Linkedin ](https://www.linkedin.com/in/irssald/)|[ R Latam Blog ](https://rlatam.blog/)]|[ Github ](https://github.com/irwingss)
+
+---
+class: inverse, middle, center , animated, slideInRight
+name: GLM
+
+# Hurdle Models
+[ Lidiando con exceso de ceros en conteos ]
+
+--
+
+&lt;br&gt;
+
+&lt;div class="box" style='padding:0.1em; background-color:#E9D8FD; color:#69337A'&gt;
+&lt;span&gt;
+&lt;p style='margin-top:1em; text-align:center'&gt;
+&lt;b&gt;RECORDEMOS&lt;/b&gt;&lt;/p&gt;
+&lt;p style='margin-left:1em;'&gt;
+En los modelos de conteos (Poisson o Binomial Negativa), se asume que los ceros y los valores no ceros &lt;br&gt;(números enteros positivos) provienen de los mismos procesos de generación de datos.
+&lt;br&gt;
+&lt;br&gt;
+&lt;/span&gt;
+&lt;/div&gt;
+
+---
+background-image: url(figs/lcf.png)
+background-size: cover
+
+# Nociones de modelos para &lt;br&gt;lidar con Excesos de Ceros
+.pull-trescuartos[
+#### Model de Hurdle (Zero-altered models, ZAP/ZANB)
+Los ceros son modelados con **Reg. Binomial**; los conteos con **Reg. de Poisson Zero-Truncada**. Todas las razones de que un conteo sea cero se modelan como probabilidad de ausencia.
+
+&gt; "Conteo &gt;0" --- ¡Aquí estoy!  
+
+&gt; "Conteo = 0" --- No estoy:
+&gt;  - Porque el hábitat no es bueno.
+&gt;  - Porque no, aunque el hábitat es bueno.
+&gt;  - Porque no pudiste verme.
+&gt;  - Pensaste que era otra especie.
+
+]
+
+---
+background-image: url(figs/lcf.png)
+background-size: cover
+
+.pull-trescuartos[
+#### Model Zero-Inflados (Zero-altered models, ZAP/ZANB)
+Un segundo modelo para lidiar con exceso de ceros son los ZAP/ZANB. El modelamiento es igual a modelos Hurdle, excepto que las razones de que un conteo sea cero se modelan como (1) probabilidad de ausencia y como (2) problemas de detectabilidad (dos procesos).
+
+&gt; ##### Procesos de conteo (P/BN)
+&gt; "Conteo &gt;0" --- ¡Aquí estoy!  
+&gt; "Conteo = 0 como ausencia" --- No estoy:
+&gt;  - Porque el hábitat no es bueno.
+
+&gt; ##### Procesos de masa (B)
+&gt; "Conteo = 0 como prob. detect." --- No estoy:
+&gt;  - Porque no pudiste verme.
+&gt;  - Porque no, aunque el hábitat es bueno.
+&gt;  - Pensaste que era otra especie.
+]
+
+---
+
+# Desarrollemos la práctica
+
+<div class="countdown" id="timer_61a18c4f" style="right:0;bottom:0;left:0;margin:12%;padding:100px;font-size:6em;" data-warnwhen="30">
+<code class="countdown-time"><span class="countdown-digits minutes">30</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+class: inverse, middle, center , animated, slideInRight
+name: GLM
+
+# Modelos Generalizados &lt;br&gt;Lineales de Efectos Mixtos
+[ GLMM ]
+
+---
+# GLMM
+
+- Son modelos que involucran la **fusión de las dos grandes ventajas en modelamiento lineal** aprendidas en este curso: los efectos mixtos (proveniente de los LMM) y el relajar las asunciones teóricas de normalidad (proveniente de los GLM).
+
+- Tienen la siguiente representación:
+
+`$$\left\{
+\begin{array}{l}
+Y_i \mid b_i \sim \mathcal F_\psi,\\\\
+b_i \sim \mathcal N(0, D),
+\end{array}
+\right.$$`
+&gt; Donde `\(Y_i\)` es la respuesta de la iésima muestra, y `\(b_i\)` es un vector de efectos aleatorios para esta unidad. La respuesta condicionada por los efectos aleatorios tiene distribución `\(\mathcal F\)` parametrizada por el vector `\(\psi\)`. Se supone que los efectos aleatorios siguen una distribución normal multivariante con media 0 y matriz de varianza-covarianza `\(D\)`. 
+
+---
+# El problema de la integral cerrada
+
+La **función de verosimilitud** de estos modelos tiene la siguiente forma general:
+
+$$
+L(\theta) = \prod_{i = 1}^n \int p(y_i \mid b_i; \psi) \, p(b_i; D) \, db_i,
+$$
+
+El problema es que la integral aquí no tiene una solución de forma cerrada. Por lo tanto, para estimar los parámetros en estos modelos con máxima verosimilitud, es necesario aproximar de alguna manera esta integral. Se conoce en la literatura dos soluciones:
+
+- **Aproximación del integrando:** PQL y Aproximación de Laplace. Trabaja mejor con modelos:
+    - Binomiales con gran N en el divisor (n/N). 
+    - Poisson con grandes recuentos esperados.
+
+- **Aproximación de la integral:** Monte Carlo y Cuadratura Adaptativa Gaussiana. Trabaja mejor con modelos:
+    - Binomiales de bernulli ("Y" binaria).
+    - Poisson con bajos recuentos esperados.
+
+---
+
+
+```r
+# Permite Cuadratura GH con solo un efecto aleatorio
+library(lme4)
+glmer(..., nAGQ = 25)
+
+# Permite Cuadratura GH con uno o más efectos aleatorios
+library(GLMMadaptive)
+mixed_model(..., nAGQ = 25) 
+```
+
+&lt;img src="figs/Cuadratura.png" width="85%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Topología de modelos GLMM en R
+
+#### Modelos de efectos mixtos GLMM usando `lme4::glmer`
+
+
+```r
+# Ejemplo GLMM
+*glmer(Var_respuesta ~ Efec_fijo + (1|Efec_Aleatorio),
+      data=DF, family="FAMILIA", nAGQ = 25) 
+```
+
+#### Modelos de efectos mixtos GLMM usando `GLMMadaptive::mixed_model`
+
+
+```r
+# Ejemplo GLMM
+*mixed_model(fixed = Var_respuesta ~ Efec_fijo,
+*           random = ~ 1 | Efec_Aleatorio,
+            data = DF, family = "FAMILIA", nAGQ = 25) 
+```
+
+La interpretación de los modelos sigue lo aprendido en el curso sobre interpretación de los efectos aleatorios, así como la correcta interpretación de los efectos fijos y su transformación necesaria como en los GLM previamente vistos.
+
+---
+
+# Desarrollemos la práctica
+
+<div class="countdown" id="timer_61a18cee" style="right:0;bottom:0;left:0;margin:12%;padding:100px;font-size:6em;" data-warnwhen="30">
+<code class="countdown-time"><span class="countdown-digits minutes">60</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+class: middle, center
+
+# Gracias por su atención
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="assets/remark-0.14.0.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "atom-one-light",
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": true,
+"slideNumberFormat": "%current%"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<style>
+.logo {
+  background-image: url(https://raw.githubusercontent.com/irwingss/IrwingRLab/master/escudo.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  bottom: 1em;
+  left: 4em;
+  width: 25px;
+  height: 25px;
+  z-index: 0;
+}
+</style>
+
+<script>
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+    // ':not(.inverse)' +
+    ':not(.hide-logo)'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="logo"></div>';
+  });
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

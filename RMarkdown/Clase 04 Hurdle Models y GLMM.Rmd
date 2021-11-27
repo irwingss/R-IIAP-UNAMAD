@@ -1,0 +1,22 @@
+---
+title: "Modelamiento Avanzado: GLM y GLMM 2"
+Subtitle: "Ciencia de Datos en R aplicada a la Conservación de Fauna Silvestre"
+Author: "Blgo. Irwing S. Saldaña"
+output: html_document
+editor_options:
+  chunk_output_type: console
+---
+
+Instalar librerías nuevas
+
+```{r eval=FALSE}
+install.packages("mcemGLM")
+install.packages("pscl")
+```
+# **5. Modelos Hurdle**
+
+```{r}
+# 
+
+```
+

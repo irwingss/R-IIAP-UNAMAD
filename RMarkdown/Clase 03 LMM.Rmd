@@ -18,11 +18,11 @@ install.packages("broom")
 install.packages("stargazer")
 install.packages("broom.mixed")
 remotes::install_github("easystats/easystats")
+devtools::install_github("strengejacke/ggeffects")
 ```
 
 # Activar librerías
 ```{r}
-library(vegan)
 library(ggpubr)
 library(broom)
 library(broom.mixed)
@@ -151,16 +151,23 @@ data("oats")
 View(oats)
 
 # Crear modelos
+# Modelo LM con interacion entre N y V, y efecto de B
 lm <- lm(Y ~ N*V + B, data = oats)
 summary(lm)
 
-Mod00 <- lm(Y ~ 0+V, data=oats)
-
-
+# Modelo LM con v
 ModV <- lm(Y ~ V, data=oats)
+
+# Modelo LM con ineraccion entre N y V
 ModVN <- lm(Y ~ V*N, data=oats)
+
+# Modelo LMM con interaccion V y N, y efecto aleatorio B
 Mod1 <- lmer(Y ~ V*N + (1|B), data=oats, REML=FALSE)
+
+# Modelo LMM con interaccion V y N, y efecto aleatorio V anidado en B 
 Mod2 <- lmer(Y ~ V*N + (1|B/V), data=oats, REML=FALSE)
+
+# Modelo LMM efecto fijo N, y efecto aleatorio V anidadoB
 Mod3 <- lmer(Y ~ N + (1|B/V), data=oats, REML=FALSE)
 
 # Selección de modelos
