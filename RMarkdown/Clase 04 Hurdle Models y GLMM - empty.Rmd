@@ -1,5 +1,5 @@
 ---
-title: "Modelamiento Avanzado: GLM y GLMM 2"
+title: "Modelamiento Avanzado: GLM Hurdle y GLMM"
 Subtitle: "Ciencia de Datos en R aplicada a la Conservación de Fauna Silvestre"
 Author: "Blgo. Irwing S. Saldaña"
 output: html_document
@@ -53,22 +53,21 @@ Variables:
 pesca <- openxlsx::read.xlsx("slide4/bases/pesca.xlsx")
 pesca <- openxlsx::read.xlsx(file.choose())
 
-str(pesca)
+# Convertir a factor las variables livebait y camper
 pesca <- pesca %>% 
   mutate_at(.vars=vars(livebait, camper),
             .funs=list(factor))
 
 # Revisión del exceso de ceros en la base de datos
-plot(table(pesca$count), col="red")
+
 
 # El Primer paso siempre hacer un GLM de Poisson
 # y revisar sobredispersión e inflación de ceros
 pois.prev <- glm(count ~ ., data = pesca, family="poisson")
-check_overdispersion(pois.prev)
-check_zeroinflation(pois.prev)
-summary(pois.prev)
-MASS::stepAIC(pois.prev, trace=0)
-mejor.pois <- MASS::stepAIC(pois.prev, trace=0)
+
+
+
+mejor.pois <- ...
 
 # Crear Modelos de Hurdle potencialmente adecuados
 library(pscl)
@@ -76,44 +75,35 @@ mod.H1 <- hurdle(count ~ .,
                  data = pesca, dist = "poisson", 
                  zero.dist = "binomial", link = "logit")
 
-mod.H2 <- hurdle(count ~ child + persons + camper | persons, 
-                 data = pesca, dist = "poisson", 
-                 zero.dist = "binomial", link = "logit")
+mod.H2 <- ...
 
-mod.H3 <- hurdle(count ~ child + camper | persons, 
-                 data = pesca, dist = "poisson", 
-                 zero.dist = "binomial", link = "logit")
+mod.H3 <- ...
 
-mod.H4 <- hurdle(count ~ livebait + child + xb + zg, 
-                 data = pesca, dist = "poisson", 
-                 zero.dist = "binomial", link = "logit")
+mod.H4 <- ...
 
-mod.H5 <- hurdle(count ~ livebait+child+xb+zg | child+persons+camper, 
-                 data = pesca, dist = "poisson", 
-                 zero.dist = "binomial", link = "logit")
+mod.H5 <- ...
 
-mod.H6 <- hurdle(count ~ livebait+child+xb+zg | xb+zg, data = pesca, dist = "poisson", zero.dist = "binomial", link = "logit")
+mod.H6 <- ...
 
 # Identificación de los modelos con mejor ajuste según AIC
-AIC(mejor.pois, mod.H1, mod.H2, mod.H3, 
-    mod.H4, mod.H5, mod.H6) %>% arrange(AIC)
+AIC(...) %>% arrange(AIC)
 
 # Comparandosi los mejores modelos
-lmtest::lrtest(mod.H4, mod.H6)
-lmtest::lrtest(mod.H4, mod.H1)
+lmtest::lrtest(...)
 
 # Mejor modelo Interpretación
-sjPlot::plot_model(mod.H4, show.values=TRUE,
+sjPlot::plot_model(MODELO, show.values=TRUE,
                    value.offset=0.4)
-sjPlot::tab_model(mod.H4)
-summary(mod.H4)
+sjPlot::tab_model(MODELO)
+summary(MODELO)
 ```
 
 **Modelo de conteos (poisson):**
-El conteo promedio es de 0.29. Esto es incrementado por pescar con cebo vivo por un factor de 1.92. Grupos con niños disminuyen la cantidad de peces pescados por un factor de 0.61. Cada unidad aumentada en densidad de Carpas aumenta la pesca por 2.65, y con cada unidad de densidad de Bagres por 1.26.    
+...
 
 **Modelo ZeroInflado (binomial):**
-La posibilidad base de que se haya pescado es de 0.01. Si bien livebait y child no son significativas, livebait aumenta la posibilidad de tener conteos (=pesca) por el factor de 1.39, y la presencia de niños disminuye la posibilidad de pesca por un factor de 0.39. Cada unidad de densidad de carpas y bagres aumentan la posibilidad de conteo por un factor de 32.14 y 8.26 respectivamente.
+...
+
 
 # **6. Regresión GLMM Logística con Efectos Mixtos**
 
@@ -130,56 +120,46 @@ glmm <- glmer(y ~ trt + (1|ID), data = bacteria,
               family = binomial(link = "logit"), nAGQ = 1)
 
 # Cuadratura de Hermit-Gauss 25
-glmm1 <- glmer(y ~ trt + (1|ID), data = bacteria, 
-               family = binomial(link = "logit"), nAGQ = 25)
+glmm1 <- glmer(...)
 
 # Generar un modelo con dos interceptos aleatorios
-glmm2 <- glmer(y ~ trt + (1|ID) + (1|week), data=bacteria, 
-               family = binomial(link = "logit"), nAGQ = 1)
+glmm2 <- glmer(...)
 
 # Comparar ambos modelos
-anova(glmm, glmm1)
-anova(glmm, glmm2)
-anova(glmm1, glmm2)
+anova(...)
+
 
 # Efectos aleatorios en SD respecto a la media general
 library(lattice)
-dotplot(ranef(glmm, which = "ID"))
+dotplot(ranef(...))
 
 # Interpretando el mejor modelo
-glmm %>% tidy(exponentiate = FALSE, conf.int = TRUE)
+MODELO %>% tidy(exponentiate = FALSE, conf.int = TRUE)
 
 # Gráfico de Odds Ratios
 library(sjPlot)
-plot_model(glmm, 
-           type = "est",
-           show.intercept=TRUE,
+library(tidyverse)
+
+plot_model(MODELO,  # Modelo
+           type = "est", # tipo de gráfico est (estimates)
+           show.intercept=TRUE, #mostrar el intercepto
            #digits = 3, #PARA EL NUMERO DE DECIMALES
            #sort.est = TRUE,
-           dot.size = 4,
-           width = 0.2,
-           line.size = 0.7,
+           dot.size = 4, # tamaño de punto
+           width = 0.2, # ancho de los bigotes
+           line.size = 0.7, # ancho de las líneas
            #colors = "black",
-           show.values = TRUE,
+           show.values = TRUE, # mostrar valores 
            #value.size = 4,
-           vline.color = "gray95",
-           value.offset = 0.2)+
+           vline.color = "gray95", # color línea de no efecto
+           value.offset = 0.2) + # mover un poquito el estimado
   theme_test()
 
-# Gráfico de Predicciones
-plot_model(glmm, type="pred")$trt +
-  geom_hline(yintercept = 0.9099099099, color="red")+
-  geom_hline(yintercept = 0.7500952, color="blue")+
-  geom_hline(yintercept = 0.830354, color="darkgreen")
-sjPlot::tab_model(glmm)
+# Gráfico de Predicciones: type="pred"
+plot_model(...)
+sjPlot::tab_model(...)
 
-fixef(glmm)
-int <- 2.2958355
-t1 <- -1.2020869
-t2 <- -0.7094952
-exp(int)/(1+exp(int))
-exp(int+t1*1)/(1+exp(int+t1*1))
-exp(int+t2*1)/(1+exp(int+t2*1))
+
 ```
 
 # **7. GLMM de conteos**
@@ -190,11 +170,8 @@ Problema: Se evaluó la riqueza de especies en 9 zonas de estudio diferentes (pl
 ```{r}
 # Carga el excel RIKZ.xlsx
 RIKZ <- openxlsx::read.xlsx("slide4/bases/RIKZ.xlsx")
+RIKZ <- openxlsx::read.xlsx(file.choose())
 RIKZ$Beach <- factor(RIKZ$Beach)
-
-# Revisemos las relaciones entre la variable respuesta y las explicativas
-plot(Richness ~ Exposure, data=RIKZ)
-plot(Richness ~ NAP, data=RIKZ)
 
 # CREAR LOS MODELOS
 # Con Exposure y NAP, e intercepto aleatorio con Beach 
@@ -202,56 +179,44 @@ glmm.ko <- glmer(Richness ~ Exposure + NAP + (1|Beach),
                  data = RIKZ, family = poisson(link = "log"))
 
 # Con Exposure e intercepto aleatorio con Beach 
-glmm.ko2 <- glmer(Richness ~ Exposure + (1|Beach), 
-                            data = RIKZ, family = poisson)
+glmm.ko2 <- glmer(...)
   
 # Con NAP e intercepto aleatorio con Beach 
-glmm.ko3 <- glmer(Richness ~ NAP + (1|Beach), 
-                            data = RIKZ, family = poisson)
+glmm.ko3 <- glmer(...)
   
 # Con NAP, con intercepto y pendientes aleatorias con Beach usando NAP
-glmm.ko4 <- glmer(Richness ~ NAP + (NAP|Beach), 
-                            data = RIKZ, family = poisson)
+glmm.ko4 <- glmer(...)
   
 # Con Exposure, con intercepto y pendientes aleatorias con Beach usando Exposure 
-glmm.ko5 <- glmer(Richness ~ Exposure + (Exposure|Beach), 
-                            data = RIKZ, family = poisson)
+glmm.ko5 <- glmer(...)
   
 # Con Exposure y NAP, con intercepto y pendientes aleatorias con Beach usando NAP
-glmm.ko6 <- glmer(Richness ~ Exposure + NAP + (NAP|Beach), 
-                            data = RIKZ, family = poisson)
+glmm.ko6 <- glmer(...)
   
 # Con Exposure y NAP, con intercepto y pendientes aleatorias con Beach usando Exposure
-glmm.ko7 <- glmer(Richness ~ Exposure + NAP + (Exposure|Beach), 
-                            data = RIKZ, family = poisson)
+glmm.ko7 <- glmer(...)
 
 # Comparar modelos
-AIC(glmm.ko, glmm.ko2, glmm.ko3, glmm.ko4, glmm.ko5, glmm.ko6, glmm.ko7) %>% arrange(AIC)
+AIC(glmm.ko, glmm.ko2, glmm.ko3, 
+    glmm.ko4, glmm.ko5, glmm.ko6, glmm.ko7) %>% 
+  arrange(AIC)
 
-anova(glmm.ko, glmm.ko6, test="LRT")
-
-library(ggpubr)
-ggscatter(x="NAP", y="Richness", color="Beach", data=RIKZ,add="reg.line")
-# Seleccionado glmm.ko6
+anova(...)
 
 # Resultados del Mejor Modelo
-summary(glmm.ko6)
+summary(...)
 
 # Verificar si los efectos aleatorios generan realmente variabilidad en las  observaciones (Dotplots o Catterpilar Plots)
-dotplot(ranef(glmm.ko6, which="Beach"))
+dotplot(ranef(...))
 
 # Resultados con Coeficientes Exponenciados
-library(broom.mixed)
-library(broom)
-glmm.ko %>% tidy(exponentiate = TRUE)
+
 
 # Chequeo de Sobredispersión
-library(performance)
-check_overdispersion(glmm.ko)
 
 # Generar gráficos de Predicciones o Efectos
-library(sjPlot)
-plot_model(glmm.ko, type="pred")
+plot_model(...)
+
 ```
 
 # **7.1. Regresión GLMM Binomial Negativa**
@@ -278,9 +243,7 @@ Arabidopsis$amd <- relevel(Arabidopsis$amd, "unclipped")
 # Gráficos exploratorios
 library(ggpubr)
 ggerrorplot(x="rack", y="y", data=Arabidopsis)
-ggerrorplot(x="nutrient", y="y", data=Arabidopsis)
-ggerrorplot(x="amd", y="y", data=Arabidopsis)
-ggerrorplot(x="status", y="y", data=Arabidopsis)
+
 ```
 
 # **Primer paso: hacer un modelo de Poisson**
@@ -288,32 +251,27 @@ ggerrorplot(x="status", y="y", data=Arabidopsis)
 ```{r}
 # Hacer un GLMM de Poisson con aproximación de Laplace 
 # y popu como efecto aleatorio
-aramod <- glmer(y ~ rack + nutrient + amd + status + (1|popu), 
-                data= Arabidopsis,family="poisson", nAGQ=1) 
+aramod <- glmer(...) 
 
 # Revisar sobredispersión
-check_overdispersion(aramod)
+
 ```
 
 # **Realizar la regresión Binomial Negativa GLM y GLMM**
 
 ```{r}
 # Crear el modelo GLM Binomial Negativa
-GLM <- glm.nb(y ~ rack + nutrient + amd + status,
-                 data= Arabidopsis)
+GLM <- glm.nb(...)
 
 # Crear los modelos GLMM Binomial Negativa
 mod1 <- glmer.nb(y ~ rack + nutrient + amd + status + (1|popu),
                  data= Arabidopsis, nAGQ=1)
 
-mod2 <- glmer.nb(y ~ rack + nutrient + amd + status + (1|reg/popu),
-                 data= Arabidopsis, nAGQ=1)
+mod2 <- glmer.nb(...)
 
-mod3 <- glmer.nb(y ~ rack + nutrient + amd + status + (1|popu/gen),
-                 data= Arabidopsis, nAGQ=1)
+mod3 <- glmer.nb(...)
 
-mod4 <- glmer.nb(y ~ rack + nutrient + amd + status + (1|reg/popu/gen), 
-                 data= Arabidopsis, nAGQ=1)
+mod4 <- glmer.nb(...)
 
 # Revisar el ajuste según AIC
 library(tidyverse)
@@ -321,16 +279,13 @@ AIC(mod1, mod2, mod3, mod4, GLM) %>% arrange(AIC)
 
 # Comparar los mejores modelos
 # y seleccionar el mejor
-anova(mod1, mod3)
+anova(...)
 
 # Revisar los efectos aleatorios para popu
-dotplot(ranef(mod1, which = "popu"))
+dotplot(ranef(...))
 
 # Interpretando el mejor modelo
-sjPlot::plot_model(mod1, type="est", show.values=TRUE,
-                   value.offset=0.2)
-mod1 %>% tidy(exponentiate = TRUE, conf.int = TRUE)
-sjPlot::tab_model(mod1)
+
 
 # El que estuviera en el rack 2 reduce la cantidad
 # de frutos (CDF).

@@ -1,0 +1,239 @@
+---
+title: "Análisis Estadístico Básico con R C5-S3"
+Subtitle: 'P.C.E. Data Science: Estadística y Análisis de Datos en R'
+Author: "Irwing S. Saldaña"
+output: html_document
+editor_options:
+  chunk_output_type: console
+---
+
+Instalar librerías nuevas
+
+```{r eval=FALSE}
+install.packages("mcemGLM")
+```
+
+Librerías a usar
+
+```{r warning=FALSE, message=FALSE}
+library(tidyverse)
+library(lme4)
+library(broom)
+library(broom.mixed)
+library(sjPlot)
+library(performance)
+library()
+```
+
+# **1. Regresión Logística con Efectos Mixtos (GLMM Binomial)**
+
+Problema: ¿Existe diferencia entre los tratamientos y el placebo sobre la presencia-ausencia de una bacteria, en un muestreo con muestras repetidas (variabilidad específica de sujetos) con dependencia temporal (semanas de muestreo)?
+
+```{r}
+# Carga la base de datos bacteria de la librería MASS
+library(MASS)
+data("bacteria")
+
+# Tratamiento de la base de datos
+bacteria$y <- ifelse(bacteria$y == "y", 1, 0) %>% as.factor()
+bacteria %>% group_by(trt) %>% count(y)
+bacteria %>% group_by(week) %>% count(y)
+
+xtabs(~ y + trt + week, data=bacteria)
+```
+
+
+
+```{r}
+# Generar un modelo con un intercepto aleatorio
+glmm <- glmer(y ~ trt + (1|ID), data = bacteria, family = binomial(link = "logit"), nAGQ = 1)
+MuMIn::coeffs(glmm)
+
+glmm1 <- glmer(y ~ trt + (1|ID), data = bacteria, family = binomial(link = "logit"), nAGQ = 25)
+MuMIn::coeffs(glmm1)
+
+
+# Generar un modelo con dos interceptos aleatorios
+glmm2 <- glmer(y ~ trt + (1|ID) + (1|week), data=bacteria, 
+               family = binomial(link = "logit"), nAGQ = 1)
+MuMIn::coeffs(glmm1)
+
+# Comparar ambos modelos
+anova(glmm, glmm1)
+anova(glmm, glmm2)
+anova(glmm1, glmm2)
+
+lmtest::lrtest(glmm, glmm2)
+
+# Verificar si los efectos aleatorios generan realmente variabilidad en las observaciones (Dotplots o Catterpilar Plots)
+library(lattice)
+dotplot(ranef(glmm, which = "ID"))
+
+# Generar un modelo con interceptos aleatorios y pendientes aleatorias
+glmm3 <- glmer(y ~ trt + (trt|ID) + (trt|week), data=bacteria, 
+               family = binomial(link = "logit"))
+  
+glmm4 <- glmer(y ~ trt + (1|ID) + (trt|week), data=bacteria, 
+               family = binomial(link = "logit"))
+  
+
+glmm5 <- glmer(y ~ trt + (trt|ID) + (1|week), data=bacteria, 
+               family = binomial(link = "logit"))
+  
+# Comparar con el mejor modelo
+anova(glmm, glmm3)
+anova(glmm, glmm4)
+anova(glmm, glmm5)
+
+# Interpretando el mejor modelo
+glmm %>% tidy(exponentiate = TRUE, conf.int = TRUE)
+
+# Gráfico de Odds Ratios
+library(sjPlot)
+plot_model(glmm, 
+           type = "est",
+           show.intercept=TRUE,
+           #digits = 3, #PARA EL NUMERO DE DECIMALES
+           #sort.est = TRUE,
+           dot.size = 4,
+           width = 0.2,
+           line.size = 0.7,
+           #colors = "black",
+           show.values = TRUE,
+           #value.size = 4,
+           vline.color = "gray95",
+           value.offset = 0.2)+
+  theme_test()
+
+# Gráfico de Predicciones
+plot_model(glmm, type="pred")$trt +
+  geom_hline(yintercept = 0.9099099099, color="red")+
+  geom_hline(yintercept = 0.7500952, color="blue")+
+  geom_hline(yintercept = 0.830354, color="darkgreen")
+
+# exp(beta)/(1+exp(beta))
+
+fixef(glmm)[1]
+
+# x es el intercepto
+oddsProb <- function(y){exp(y)/(1+exp(y))}
+oddsProb(fixef(glmm)[1])
+
+# y es el intercepto, x es el nivel
+ORProb <- function(y,x){exp(y+x)/(1+exp(y+x))}
+ORProb(fixef(glmm)[1],fixef(glmm)[2])
+ORProb(fixef(glmm)[1], fixef(glmm)[3])
+
+glmm %>% tidy(conf.int = TRUE)
+glmm %>% tidy(conf.int = TRUE, exponentiate=FALSE)
+
+ORProb(-1.91, fixef(glmm)[1])
+ORProb(0.472, fixef(glmm)[1])
+
+ORProb(1.39, fixef(glmm)[1])
+ORProb(3.23, fixef(glmm)[1])
+ORProb(log(10.05), fixef(glmm)[1])
+```
+
+# **2. Regresión de Poisson, y asociadas, con Efectos Mixtos (GLMM para conteos)**
+
+## **2.1. Regresión de Poisson con efectos mixtos**
+
+Problema: ¿cuál es el efecto de las variables de exposición y NAP sobre la cantidad de especies bentónicas de zona intermareal en la costa norte de Bélgica?.
+
+-   Richness: riqueza de especies. **Respuesta (conteos).**
+
+-   Exposure: índice creado con la zona de oleaje, pendiente, el tamaño de grano y la profundidad de la capa anaeróbica. **Explicativa 1.**
+
+-   NAP: altura de la estación de muestreo en comparación con el nivel medio de la marea. **Explicativa 2.**
+
+-   Beach: identificador de playa. **Variable de efecto aleatorio.**
+
+```{r}
+# Carga el excel RIKZ.xlsx
+RIKZ <- openxlsx::read.xlsx("slide4/bases/RIKZ.xlsx")
+RIKZ$Beach <- factor(RIKZ$Beach)
+
+# Revisemos las relaciones entre la variable respuesta y las explicativas
+plot(Richness ~ Exposure, data=RIKZ)
+plot(Richness ~ NAP, data=RIKZ)
+
+# CREAR LOS MODELOS
+# Con Exposure y NAP, e intercepto aleatorio con Beach 
+glmm.ko <- glmer(Richness ~ Exposure + NAP + (1|Beach),
+                 data = RIKZ, family = poisson(link = "log"))
+
+# Con Exposure e intercepto aleatorio con Beach 
+glmm.ko2 <- glmer(Richness ~ Exposure + (1|Beach), 
+                            data = RIKZ, family = poisson)
+  
+# Con NAP e intercepto aleatorio con Beach 
+glmm.ko3 <- glmer(Richness ~ NAP + (1|Beach), 
+                            data = RIKZ, family = poisson)
+  
+# Con NAP, con intercepto y pendientes aleatorias con Beach usando NAP
+glmm.ko4 <- glmer(Richness ~ NAP + (NAP|Beach), 
+                            data = RIKZ, family = poisson)
+  
+# Con Exposure, con intercepto y pendientes aleatorias con Beach usando Exposure 
+glmm.ko5 <- glmer(Richness ~ Exposure + (Exposure|Beach), 
+                            data = RIKZ, family = poisson)
+  
+# Con Exposure y NAP, con intercepto y pendientes aleatorias con Beach usando NAP
+glmm.ko6 <- glmer(Richness ~ Exposure + NAP + (NAP|Beach), 
+                            data = RIKZ, family = poisson)
+  
+# Con Exposure y NAP, con intercepto y pendientes aleatorias con Beach usando Exposure
+glmm.ko7 <- glmer(Richness ~ Exposure + NAP + (Exposure|Beach), 
+                            data = RIKZ, family = poisson)
+
+# Comparar modelos
+AIC(glmm.ko, glmm.ko2, glmm.ko3, glmm.ko4, glmm.ko5, glmm.ko6, glmm.ko7) %>% arrange(AIC)
+
+anova(glmm.ko, glmm.ko6, test="LRT")
+
+library(ggpubr)
+ggscatter(x="NAP", y="Richness", color="Beach", data=RIKZ,add="reg.line")
+# Seleccionado glmm.ko6
+
+# Resultados del Mejor Modelo
+summary(glmm.ko6)
+
+# Verificar si los efectos aleatorios generan realmente variabilidad en las  observaciones (Dotplots o Catterpilar Plots)
+dotplot(ranef(glmm.ko6, which="Beach"))
+
+# Resultados con Coeficientes Exponenciados
+library(broom.mixed)
+library(broom)
+tidy(glmm.ko, exponentiate = TRUE)
+
+# Chequeo de Sobredispersión
+library(performance)
+check_overdispersion(glmm.ko)
+
+# Generar gráficos de Predicciones o Efectos
+library(sjPlot)
+plot_model(glmm.ko, type="pred")
+```
+
+
+## **2.2. Regresión Binomial Negativa con efectos mixtos**
+
+```{r}
+# Generar el modelo mejor ajustado en la regresión de Poisson GLMM
+glmm.ko.nb <- glmer.nb(Richness ~ Exposure + NAP + (1|Beach), data = RIKZ)
+
+# Resultados
+summary(glmm.ko.nb)
+
+# Resultados con Coeficientes Exponenciados
+library(broom.mixed)
+
+coef(glmm.ko.nb)
+
+glmm.ko.nb %>%  tidy(exponentiate = TRUE)
+
+# Generar gráficos de Predicciones o Efectos
+library(sjPlot)
+plot_model(glmm.ko.nb, type="pred")
+```

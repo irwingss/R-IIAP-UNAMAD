@@ -76,7 +76,25 @@ anova(modpez3, modpez3_nulo, test="LRT")
 # Interpretación de coeficientes del modelo Logístico (Bernoulli)
 summary(modpez3)
 exp(coef(modpez3))
+broom.mixed::tidy(modpez3)
 broom.mixed::tidy(modpez3, exponentiate=TRUE)
+broom.mixed::tidy(modpez3, exponentiate=TRUE, conf.int=TRUE)
+
+coeffs(modpez3)
+# exp()/(1+exp())
+exp()/(1+exp())
+int <-  -5.00684382
+long <- 0.04261517
+tacF <- -2.89633142
+tacT <- -0.30638442
+longTacF <- 0.08189771
+longTacT <- 0.03056958
+
+# Longitud 40 mm, Tactica Furtiva
+exp(int + long*40 + tacF*1 + longTacF*1*40)/(1+exp(int + long*40 + tacF*1 + longTacF*1*40))
+predict(modpez3, data.frame(longitud=40, tactica="Furtivo"),
+        type="response")
+
 ```
 
 ## **1.6. Gráfico Final**

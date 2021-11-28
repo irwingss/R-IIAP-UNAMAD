@@ -267,17 +267,15 @@ El problema es que la integral aquí no tiene una solución de forma cerrada. Po
 ---
 
 ```{r, eval=FALSE}
-# Permite Cuadratura GH con solo un efecto aleatorio
+# Permite Cuadratura GH con solo un efecto aleatorio. Para más efectos
+# aleatorios se aplica automáticamente la Aproximación de Laplace
+
 library(lme4)
 glmer(..., nAGQ = 25)
 
-# Permite Cuadratura GH con uno o más efectos aleatorios
-library(GLMMadaptive)
-mixed_model(..., nAGQ = 25) 
-
 ```
 
-```{r, fig.align='center', out.width="85%", echo=FALSE}
+```{r, fig.align='center', out.width="90%", echo=FALSE}
 knitr::include_graphics("figs/Cuadratura.png")
 ```
 
@@ -293,17 +291,7 @@ glmer(Var_respuesta ~ Efec_fijo + (1|Efec_Aleatorio), #<<
       data=DF, family="FAMILIA", nAGQ = 25) 
 ```
 
-#### Modelos de efectos mixtos GLMM usando `GLMMadaptive::mixed_model`
-
-```{r, eval=FALSE}
-# Ejemplo GLMM
-mixed_model(fixed = Var_respuesta ~ Efec_fijo, #<<
-            random = ~ 1 | Efec_Aleatorio, #<<
-            data = DF, family = "FAMILIA", nAGQ = 25) 
-
-```
-
-La interpretación de los modelos sigue lo aprendido en el curso sobre interpretación de los efectos aleatorios, así como la correcta interpretación de los efectos fijos y su transformación necesaria como en los GLM previamente vistos.
+La interpretación de los modelos, sea cual sea el método que se aplique, sigue lo aprendido en el curso sobre interpretación de los efectos aleatorios, así como la correcta interpretación de los efectos fijos y su transformación necesaria como en los GLM previamente vistos.
 
 ---
 
